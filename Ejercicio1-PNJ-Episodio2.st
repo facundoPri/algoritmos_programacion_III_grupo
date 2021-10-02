@@ -1,3 +1,43 @@
+!classDefinition: #CarolinaLaCuranderaDeSkyrim category: 'Ejercicio1-PNJ-Episodio2'!
+DenotativeObject subclass: #CarolinaLaCuranderaDeSkyrim
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio1-PNJ-Episodio2'!
+
+
+!classDefinition: #ElPuebloRiverwood category: 'Ejercicio1-PNJ-Episodio2'!
+DenotativeObject subclass: #ElPuebloRiverwood
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Ejercicio1-PNJ-Episodio2'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ElPuebloRiverwood class' category: 'Ejercicio1-PNJ-Episodio2'!
+ElPuebloRiverwood class
+	instanceVariableNames: 'personajesPrometedores'!
+
+!ElPuebloRiverwood class methodsFor: 'as yet unclassified' stamp: 'RS 10/1/2021 20:54:01'!
+esPrometedor: unPersonaje
+	^personajesPrometedores at: unPersonaje ifAbsent: [false].! !
+
+!ElPuebloRiverwood class methodsFor: 'as yet unclassified' stamp: 'RS 10/1/2021 20:58:17'!
+hacerPersonajePrometedor: unPersonaje
+	personajesPrometedores at: unPersonaje put: true.! !
+
+!ElPuebloRiverwood class methodsFor: 'as yet unclassified' stamp: 'RS 10/1/2021 21:30:32'!
+initializeCollaboratorsFromFile
+	"Auto generated method for loading purposes - Do not modify it"
+
+	personajesPrometedores := ((Dictionary new) add: (#Hamilton->true); yourself).! !
+
+!ElPuebloRiverwood class methodsFor: 'as yet unclassified' stamp: 'RS 10/1/2021 21:27:20'!
+olvidar
+	personajesPrometedores := Dictionary new.! !
+
+
 !classDefinition: #PruebasInteracionesConCarolinaLaCurandera category: 'Ejercicio1-PNJ-Episodio2'!
 DenotativeObject subclass: #PruebasInteracionesConCarolinaLaCurandera
 	instanceVariableNames: ''
@@ -289,13 +329,13 @@ treborElGuardia
 hacerQueElGuardiaOlvideSusInteracciones
 	TreborElGuardiaDeSkyrim olvidar.! !
 
-!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'JMB 9/21/2021 20:53:36'!
+!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'RS 10/1/2021 21:26:20'!
 hacerQueRiverwoodOlvideTodasSusCalificaciones
-	"Implementar cuando sea necesario"! !
+	^ElPuebloRiverwood olvidar.! !
 
-!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'JMB 9/22/2021 00:06:53'!
+!PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'RS 10/1/2021 20:58:17'!
 hacerQueRiverwoodVeaPrometedorAHamilton
-	Assert isTrue: false description: 'Reemplazar esto por la implementación correspondiente'.! !
+	ElPuebloRiverwood hacerPersonajePrometedor: self hamilton.! !
 
 !PruebasInteracionesConTreborElGuardia class methodsFor: 'opiniones e interacciones' stamp: 'JMB 9/25/2021 12:52:12'!
 olvidarInteraccionesYOpiniones
@@ -315,43 +355,38 @@ DenotativeObject subclass: #TreborElGuardiaDeSkyrim
 
 !classDefinition: 'TreborElGuardiaDeSkyrim class' category: 'Ejercicio1-PNJ-Episodio2'!
 TreborElGuardiaDeSkyrim class
-	instanceVariableNames: 'frases cantidadDeInteracciones'!
+	instanceVariableNames: 'frasesParaPrometedores frasesParaDesconocidos cantidadDeInteracciones'!
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'fp 9/27/2021 21:48:33'!
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'RS 10/1/2021 21:00:28'!
 interactuarCon: unPersonajeAIteractuar
-	self recordarPersonaje: unPersonajeAIteractuar. 
-	self recordarInteraccion.
-	^ self responderSegunCantidadDeInteracciones.! !
+	self recordarInteraccionDe: unPersonajeAIteractuar.
+	^ self responderSegunCalificacionDeRiverwoodYCantidadDeInteracciones:unPersonajeAIteractuar.! !
 
 !TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'fp 9/27/2021 21:33:18'!
 olvidar
 	cantidadDeInteracciones := Dictionary new.! !
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones' stamp: 'fp 9/27/2021 21:44:34'!
-recordarPersonaje: unPersonajeAIteractuar
-	cantidadDeInteracciones at:'unaClave' ifAbsent:[0] ! !
 
-
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'JMB 9/18/2021 11:25:28'!
-recordarInteraccion
-	cantidadDeInteracciones := cantidadDeInteracciones + 1.
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'RS 10/1/2021 20:41:44'!
+recordarInteraccionDe: unPersonajeJugador  
+	cantidadDeInteracciones at: unPersonajeJugador put: ((cantidadDeInteracciones at: unPersonajeJugador ifAbsent:[0])+1).
 ! !
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'fp 9/27/2021 21:36:10'!
-recordarInteraccionDe: unPersonajeJugador 
-	cantidadDeInteracciones := cantidadDeInteracciones + 1.
-! !
-
-!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'JMB 9/18/2021 11:35:15'!
-responderSegunCantidadDeInteracciones
-	^ frases at: (cantidadDeInteracciones min: frases size)! !
+!TreborElGuardiaDeSkyrim class methodsFor: 'interacciones - privado' stamp: 'RS 10/1/2021 21:04:55'!
+responderSegunCalificacionDeRiverwoodYCantidadDeInteracciones: unPersonajeAIteractuar
+	(ElPuebloRiverwood esPrometedor: unPersonajeAIteractuar) ifFalse: [ 
+		^frasesParaDesconocidos at: ((cantidadDeInteracciones at: unPersonajeAIteractuar )min: frasesParaDesconocidos size)
+	].
+	^frasesParaPrometedores at: ((cantidadDeInteracciones at: unPersonajeAIteractuar )min: frasesParaPrometedores size)! !
 
 
-!TreborElGuardiaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'fp 9/27/2021 22:08:01'!
+!TreborElGuardiaDeSkyrim class methodsFor: 'as yet unclassified' stamp: 'RS 10/1/2021 21:30:32'!
 initializeCollaboratorsFromFile
 	"Auto generated method for loading purposes - Do not modify it"
 
-	frases := #('Hola forastero' '¿Todo bien?' '¿Algún problema?' ).
-	cantidadDeInteracciones := ((Dictionary new) add: (#Hamilton->'unValor'); yourself).! !
+	frasesParaPrometedores := #('Bienvenido aventurero!!' 'Espero que tengas una buena estadia en Riverwood' ).
+	frasesParaDesconocidos := #('Hola forastero' '¿Todo bien?' '¿Algún problema?' ).
+	cantidadDeInteracciones := ((Dictionary new) add: (#Hamilton->1); yourself).! !
 
+ElPuebloRiverwood initializeAfterFileIn!
 TreborElGuardiaDeSkyrim initializeAfterFileIn!

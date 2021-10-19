@@ -1,4 +1,4 @@
-!classDefinition: #NumeroTest category: #'Numeros-Parte1-Ejercicio'!
+!classDefinition: #NumeroTest category: 'Numeros-Parte1-Ejercicio'!
 TestCase subclass: #NumeroTest
 	instanceVariableNames: 'zero one two four oneFifth oneHalf five twoFifth twoTwentyfifth fiveHalfs three eight negativeOne negativeTwo'
 	classVariableNames: ''
@@ -107,7 +107,7 @@ test17SignIsCorrectlyAssignedToFractionWithNegativeDivisor
 	self assert: oneHalf negated equals: (Numero with: one over: negativeTwo)! !
 
 
-!NumeroTest methodsFor: 'setup' stamp: 'NR 9/8/2019 21:09:34'!
+!NumeroTest methodsFor: 'setup' stamp: 'RS 10/19/2021 18:28:35'!
 setUp
 
 	zero := Numero with: 0.
@@ -119,18 +119,18 @@ setUp
 	eight := Numero with: 8.
 	negativeOne := Numero with: -1.
 	negativeTwo := Numero with: -2.
-	
+	"
 	oneHalf := Numero with: one over: two.
 	oneFifth := Numero with: one over: five.
 	twoFifth := Numero with: two over: five.
 	twoTwentyfifth := Numero with: two over: (Numero with: 25).
 	fiveHalfs := Numero with: five over: two.
-	! !
+"! !
 
 
-!classDefinition: #Numero category: #'Numeros-Parte1-Ejercicio'!
+!classDefinition: #Numero category: 'Numeros-Parte1-Ejercicio'!
 Object subclass: #Numero
-	instanceVariableNames: 'type value numerator denominator'
+	instanceVariableNames: 'type'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Numeros-Parte1-Ejercicio'!
@@ -174,47 +174,19 @@ negated
 		[ ^self class with: numerator * (self class with: -1) over: denominator ].! !
 
 
-!Numero methodsFor: 'testing' stamp: 'NR 9/8/2019 22:00:09'!
+!Numero methodsFor: 'testing' stamp: 'RS 10/19/2021 18:25:53'!
 isNegative
-	
-	type = #Entero ifTrue:
-		[ ^value < 0 ].
-	type = #Fraccion ifTrue:
-		[ ^denominator < 0 ].! !
 
-!Numero methodsFor: 'testing' stamp: 'NR 9/8/2019 22:00:16'!
+	self subclassResponsibility .! !
+
+!Numero methodsFor: 'testing' stamp: 'RS 10/19/2021 18:24:58'!
 isOne
+	self subclassResponsibility! !
 
-	type = #Entero ifTrue:
-		[ ^value = 1 ].
-	type = #Fraccion ifTrue:
-		[ ^false ].! !
-
-!Numero methodsFor: 'testing' stamp: 'NR 9/8/2019 22:00:23'!
+!Numero methodsFor: 'testing' stamp: 'RS 10/19/2021 18:18:39'!
 isZero
+	self subclassResponsibility ! !
 
-	type = #Entero ifTrue:
-		[ ^value = 0 ].
-	type = #Fraccion ifTrue:
-		[ ^false ].! !
-
-
-!Numero methodsFor: 'initialization' stamp: 'NR 9/8/2019 20:40:14'!
-initializeWith: aValue
-	
-	type := #Entero.
-	value := aValue! !
-
-!Numero methodsFor: 'initialization' stamp: 'NR 9/8/2019 20:40:23'!
-initializeWith: aNumerator over: aDenominator
-
-	"Estas precondiciones estan por si se comenten errores en la implementacion - Hernan"
-	aNumerator isZero ifTrue: [ self error: 'una fraccion no puede ser cero' ].
-	aDenominator isOne ifTrue: [ self error: 'una fraccion no puede tener denominador 1 porque sino es un entero' ].
-	
-	type:=#Fraccion.
-	numerator := aNumerator.
-	denominator := aDenominator ! !
 
 
 !Numero methodsFor: 'accessing' stamp: 'NR 9/8/2019 20:59:46'!
@@ -291,7 +263,7 @@ greatestCommonDivisorWith: anEntero
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Numero class' category: #'Numeros-Parte1-Ejercicio'!
+!classDefinition: 'Numero class' category: 'Numeros-Parte1-Ejercicio'!
 Numero class
 	instanceVariableNames: ''!
 
@@ -301,15 +273,15 @@ canNotDivideByZeroErrorDescription
 	^'No se puede dividir por cero'! !
 
 
-!Numero class methodsFor: 'instance creation' stamp: 'NR 9/8/2019 20:46:40'!
+!Numero class methodsFor: 'instance creation' stamp: 'RS 10/19/2021 18:07:03'!
 with: aValue 
 	
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
 	
-	^self new initializeWith: aValue! !
+	^Entero new initializeWith: aValue! !
 
-!Numero class methodsFor: 'instance creation' stamp: 'NR 9/8/2019 23:20:40'!
+!Numero class methodsFor: 'instance creation' stamp: 'RS 10/19/2021 18:23:17'!
 with: aDividend over: aDivisor
 
 	| greatestCommonDivisor numerator denominator |
@@ -325,4 +297,64 @@ with: aDividend over: aDivisor
 	
 	denominator isOne ifTrue: [ ^numerator ].
 
-	^self new initializeWith: numerator over: denominator! !
+	^Fraccion new initializeWith: numerator over: denominator! !
+
+
+!classDefinition: #Entero category: 'Numeros-Parte1-Ejercicio'!
+Numero subclass: #Entero
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte1-Ejercicio'!
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:48:50'!
++ anAdder
+	^self class with: value + anAdder integerValue ! !
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:16:08'!
+initializeWith: aValue
+
+	value := aValue! !
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:26:30'!
+isNegative
+	^value < 0.! !
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:25:11'!
+isOne
+	^value = 1! !
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:18:00'!
+isZero
+	^value = 0! !
+
+
+!classDefinition: #Fraccion category: 'Numeros-Parte1-Ejercicio'!
+Numero subclass: #Fraccion
+	instanceVariableNames: 'numerator denominator'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte1-Ejercicio'!
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:21:20'!
+initializeWith: aNumerator over: aDenominator
+
+	"Estas precondiciones estan por si se comenten errores en la implementacion - Hernan"
+	aNumerator isZero ifTrue: [ self error: 'una fraccion no puede ser cero' ].
+	aDenominator isOne ifTrue: [ self error: 'una fraccion no puede tener denominador 1 porque sino es un entero' ].
+	
+	numerator := aNumerator.
+	denominator := aDenominator ! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:26:46'!
+isNegative
+	
+	^denominator < 0.! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:25:22'!
+isOne
+	^false! !
+
+!Fraccion methodsFor: 'as yet unclassified' stamp: 'RS 10/19/2021 18:18:26'!
+isZero
+	^false! !

@@ -1,4 +1,4 @@
-!classDefinition: #NumeroTest category: #'Numeros-Parte2-Ejercicio'!
+!classDefinition: #NumeroTest category: 'Numeros-Parte2-Ejercicio'!
 TestCase subclass: #NumeroTest
 	instanceVariableNames: 'zero one two four oneFifth oneHalf five twoFifth twoTwentyfifth fiveHalfs three eight negativeOne negativeTwo'
 	classVariableNames: ''
@@ -76,7 +76,7 @@ test10FraccionDividesFraccionCorrectly
 
 	self assert: oneHalf / oneFifth equals: fiveHalfs! !
 
-!NumeroTest methodsFor: 'tests' stamp: 'HernanWilkinson 5/7/2016 21:07'!
+!NumeroTest methodsFor: 'tests' stamp: 'fp 10/21/2021 19:47:19'!
 test11EnteroAddsFraccionCorrectly
 "
 	Ahora empieza la diversion!!
@@ -287,7 +287,7 @@ setUp
 	! !
 
 
-!classDefinition: #Numero category: #'Numeros-Parte2-Ejercicio'!
+!classDefinition: #Numero category: 'Numeros-Parte2-Ejercicio'!
 Object subclass: #Numero
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -343,7 +343,7 @@ invalidNumberType
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Numero class' category: #'Numeros-Parte2-Ejercicio'!
+!classDefinition: 'Numero class' category: 'Numeros-Parte2-Ejercicio'!
 Numero class
 	instanceVariableNames: ''!
 
@@ -357,21 +357,29 @@ invalidNumberTypeErrorDescription
 	^ 'Tipo de Número Inválido'! !
 
 
-!classDefinition: #Entero category: #'Numeros-Parte2-Ejercicio'!
+!classDefinition: #Entero category: 'Numeros-Parte2-Ejercicio'!
 Numero subclass: #Entero
 	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:13'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'fp 10/21/2021 20:05:50'!
 * aMultiplier 
+
+	(aMultiplier isKindOf: Fraccion ) ifTrue:[
+		^self*aMultiplier numerator/aMultiplier denominator.
+	].
 	
 	^self class with: value * aMultiplier integerValue
 	! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:13'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'fp 10/21/2021 20:34:56'!
 + anAdder 
+
+	(anAdder isKindOf: Fraccion ) ifTrue:[
+		^((self*anAdder denominator) + anAdder numerator)/anAdder denominator.
+	].
 	
 	^self class with: value + anAdder integerValue
 ! !
@@ -460,7 +468,7 @@ greatestCommonDivisorWith: anEntero
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Entero class' category: #'Numeros-Parte2-Ejercicio'!
+!classDefinition: 'Entero class' category: 'Numeros-Parte2-Ejercicio'!
 Entero class
 	instanceVariableNames: ''!
 
@@ -477,7 +485,7 @@ with: aValue
 	^self new initalizeWith: aValue! !
 
 
-!classDefinition: #Fraccion category: #'Numeros-Parte2-Ejercicio'!
+!classDefinition: #Fraccion category: 'Numeros-Parte2-Ejercicio'!
 Numero subclass: #Fraccion
 	instanceVariableNames: 'numerator denominator'
 	classVariableNames: ''
@@ -490,10 +498,14 @@ Numero subclass: #Fraccion
 	^(numerator * aMultiplier numerator) / (denominator * aMultiplier denominator)
 	! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:14'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'fp 10/21/2021 20:33:33'!
 + anAdder 
 	
 	| newNumerator newDenominator |
+	
+	(anAdder isKindOf: Entero ) ifTrue:[		 
+		^((anAdder*denominator) + numerator)/ denominator.
+	].
 	
 	newNumerator := (numerator * anAdder denominator) + (denominator * anAdder numerator).
 	newDenominator := denominator * anAdder denominator.
@@ -576,11 +588,11 @@ printOn: aStream
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Fraccion class' category: #'Numeros-Parte2-Ejercicio'!
+!classDefinition: 'Fraccion class' category: 'Numeros-Parte2-Ejercicio'!
 Fraccion class
 	instanceVariableNames: ''!
 
-!Fraccion class methodsFor: 'intance creation' stamp: 'NR 9/23/2018 23:45:19'!
+!Fraccion class methodsFor: 'intance creation' stamp: 'fp 10/21/2021 19:56:15'!
 with: aDividend over: aDivisor
 
 	| greatestCommonDivisor numerator denominator |
@@ -596,5 +608,4 @@ with: aDividend over: aDivisor
 	
 	denominator isOne ifTrue: [ ^numerator ].
 
-	^self new initializeWith: numerator over: denominator
-	! !
+	^self new initializeWith: numerator over: denominator! !

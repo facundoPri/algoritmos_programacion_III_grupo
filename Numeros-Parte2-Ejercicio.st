@@ -364,14 +364,19 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'fp 10/21/2021 20:05:50'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'fp 10/22/2021 15:55:07'!
 * aMultiplier 
 
 	(aMultiplier isKindOf: Fraccion ) ifTrue:[
 		^self*aMultiplier numerator/aMultiplier denominator.
 	].
+
+
+	(aMultiplier isKindOf: Entero ) ifTrue:[
+		^self class with: value * aMultiplier integerValue
+	].
 	
-	^self class with: value * aMultiplier integerValue
+	self error: 'Multiper is invalid'
 	! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'fp 10/21/2021 20:34:56'!

@@ -504,7 +504,7 @@ Entero class
 negativeFibonacciErrorDescription
 	^ ' Fibonacci no está definido aquí para Enteros Negativos'! !
 
-!Entero class methodsFor: 'instance creation' stamp: 'fp 10/23/2021 16:36:55'!
+!Entero class methodsFor: 'instance creation' stamp: 'fp 10/24/2021 21:45:12'!
 with: aValue 
 	
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
@@ -512,10 +512,18 @@ with: aValue
 	
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
 
-	claseAInstanciar := (Entero subclasses) detect: [:subclassDetected| 
-		subclassDetected validateInicializationValue: aValue.].
+	claseAInstanciar := (Entero subclasses) 
+	detect: [:subclassDetected|
+		subclassDetected validateInicializationValue: aValue.] 
+	ifFound:[:subclassDetected| subclassDetected initializeSubclassDetected: aValue] 
+	ifNone:[self error: 'Que raro'].
 
-	^claseAInstanciar new initalizeWith: aValue.! !
+	^claseAInstanciar! !
+
+
+!Entero class methodsFor: 'as yet unclassified' stamp: 'fp 10/24/2021 21:45:12'!
+initializeSubclassDetected: aValue
+	^self new initalizeWith: aValue! !
 
 
 !classDefinition: #Cero category: 'Numeros-Parte2-Ejercicio'!
@@ -556,8 +564,62 @@ validateInicializationValue: aValue
 	^aValue = 0! !
 
 
+!classDefinition: #EnteroNegativo category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #EnteroNegativo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'fp 10/24/2021 20:37:35'!
+divideAnEntero: aDividend
+
+	^aDividend negated / self negated ! !
+
+!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'fp 10/24/2021 20:37:39'!
+fibonacci
+
+	self error: Entero negativeFibonacciErrorDescription! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'EnteroNegativo class' category: 'Numeros-Parte2-Ejercicio'!
+EnteroNegativo class
+	instanceVariableNames: ''!
+
+!EnteroNegativo class methodsFor: 'as yet unclassified' stamp: 'fp 10/23/2021 16:36:39'!
+validateInicializationValue: aValue
+	^aValue < 0! !
+
+
+!classDefinition: #EnteroPositivo category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #EnteroPositivo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'EnteroPositivo class' category: 'Numeros-Parte2-Ejercicio'!
+EnteroPositivo class
+	instanceVariableNames: ''!
+
+!EnteroPositivo class methodsFor: 'as yet unclassified' stamp: 'fp 10/24/2021 21:45:12'!
+initializeSubclassDetected: aValue
+	^(EnteroPositivo subclasses) 
+	detect: [:subclassDetected|
+		subclassDetected validateInicializationValue: aValue.] 
+	ifFound:[:subclassDetected| subclassDetected new initalizeWith: aValue] 
+	ifNone:[self error: 'Que raro 2'].! !
+
+!EnteroPositivo class methodsFor: 'as yet unclassified' stamp: 'fp 10/24/2021 20:45:59'!
+validateInicializationValue: aValue
+	^aValue > 0! !
+
+
 !classDefinition: #EnteroMayorAUno category: 'Numeros-Parte2-Ejercicio'!
-Entero subclass: #EnteroMayorAUno
+EnteroPositivo subclass: #EnteroMayorAUno
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -598,36 +660,8 @@ validateInicializationValue: aValue
 	^aValue > 1! !
 
 
-!classDefinition: #EnteroNegativo category: 'Numeros-Parte2-Ejercicio'!
-Entero subclass: #EnteroNegativo
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Numeros-Parte2-Ejercicio'!
-
-!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'fp 10/24/2021 20:37:35'!
-divideAnEntero: aDividend
-
-	^aDividend negated / self negated ! !
-
-!EnteroNegativo methodsFor: 'as yet unclassified' stamp: 'fp 10/24/2021 20:37:39'!
-fibonacci
-
-	self error: Entero negativeFibonacciErrorDescription! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'EnteroNegativo class' category: 'Numeros-Parte2-Ejercicio'!
-EnteroNegativo class
-	instanceVariableNames: ''!
-
-!EnteroNegativo class methodsFor: 'as yet unclassified' stamp: 'fp 10/23/2021 16:36:39'!
-validateInicializationValue: aValue
-	^aValue < 0! !
-
-
 !classDefinition: #Uno category: 'Numeros-Parte2-Ejercicio'!
-Entero subclass: #Uno
+EnteroPositivo subclass: #Uno
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

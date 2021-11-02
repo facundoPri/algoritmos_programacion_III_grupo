@@ -145,92 +145,12 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	category: 'Stack-Exercise'!
 
 
-!classDefinition: #Estado category: 'Stack-Exercise'!
-Object subclass: #Estado
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!Estado methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:40:00'!
-initializeWith: aStack
-	self subclassResponsibility.! !
-
-
-!classDefinition: #EstadoNoVacio category: 'Stack-Exercise'!
-Estado subclass: #EstadoNoVacio
-	instanceVariableNames: 'stack'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!EstadoNoVacio methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:39:16'!
-initializeWith: aStack
-	stack := aStack! !
-
-!EstadoNoVacio methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:41:17'!
-pop
-	^stack removeLast! !
-
-!EstadoNoVacio methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:42:08'!
-top
-	^stack last.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'EstadoNoVacio class' category: 'Stack-Exercise'!
-EstadoNoVacio class
-	instanceVariableNames: ''!
-
-!EstadoNoVacio class methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:09:18'!
-chequearTipoStack: unStack
-	^(unStack isEmpty) not.! !
-
-
-!classDefinition: #EstadoVacio category: 'Stack-Exercise'!
-Estado subclass: #EstadoVacio
-	instanceVariableNames: 'stack'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!EstadoVacio methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:39:26'!
-initializeWith: aStack
-	stack := aStack! !
-
-!EstadoVacio methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:45:54'!
-pop
-	self error: OOStack stackEmptyErrorDescription.! !
-
-!EstadoVacio methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:45:46'!
-top
-	self error: OOStack stackEmptyErrorDescription.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'EstadoVacio class' category: 'Stack-Exercise'!
-EstadoVacio class
-	instanceVariableNames: ''!
-
-!EstadoVacio class methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:09:24'!
-chequearTipoStack: unStack
-	^unStack isEmpty.! !
-
-
 !classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
 	instanceVariableNames: 'stack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
-
-!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:44:14'!
-estados
-	| unaSubclase |
-	unaSubclase _( (Estado subclasses) detect: [ :a |
-		a chequearTipoStack: stack
-		]) new initializeWith: stack.
-	^unaSubclase.! !
 
 !OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:05:28'!
 initialize
@@ -240,13 +160,9 @@ initialize
 isEmpty
 	^(stack isEmpty)! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:42:20'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:02:45'!
 pop
-	^(self estados) pop.
-
-"	(self isEmpty) ifTrue: [
-		self error: self class stackEmptyErrorDescription.].
-	^stack removeLast."! !
+	^(self stackState) popByState .! !
 
 !OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:27:30'!
 push: something
@@ -256,9 +172,14 @@ push: something
 size
 	^stack size! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:42:26'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:10:37'!
+stackState
+	^OOStackState with: stack.
+! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:09:31'!
 top
-	^(self estados) top.! !
+	^(self stackState) topByState.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -272,9 +193,96 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
+!classDefinition: #OOStackState category: 'Stack-Exercise'!
+Object subclass: #OOStackState
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OOStackState methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:40:00'!
+initializeWith: aStack
+	self subclassResponsibility.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'OOStackState class' category: 'Stack-Exercise'!
+OOStackState class
+	instanceVariableNames: ''!
+
+!OOStackState class methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:10:37'!
+with: aStack
+	^( (self subclasses) detect: [ :aState |
+		aState validateStackState: aStack
+		]) new initializeWith: aStack.! !
+
+
+!classDefinition: #OOStackStateEmpty category: 'Stack-Exercise'!
+OOStackState subclass: #OOStackStateEmpty
+	instanceVariableNames: 'stack'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OOStackStateEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:39:26'!
+initializeWith: aStack
+	stack := aStack! !
+
+!OOStackStateEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:01:56'!
+popByState
+	self error: OOStack stackEmptyErrorDescription.! !
+
+!OOStackStateEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:02:07'!
+topByState
+	self error: OOStack stackEmptyErrorDescription.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'OOStackStateEmpty class' category: 'Stack-Exercise'!
+OOStackStateEmpty class
+	instanceVariableNames: ''!
+
+!OOStackStateEmpty class methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:52:52'!
+validateStackState: aStack
+	^aStack isEmpty.! !
+
+
+!classDefinition: #OOStackStateNotEmpty category: 'Stack-Exercise'!
+OOStackState subclass: #OOStackStateNotEmpty
+	instanceVariableNames: 'stack'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OOStackStateNotEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:39:16'!
+initializeWith: aStack
+	stack := aStack! !
+
+!OOStackStateNotEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:01:28'!
+popByState
+	^stack removeLast! !
+
+!OOStackStateNotEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:02:33'!
+topByState
+	^stack last.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'OOStackStateNotEmpty class' category: 'Stack-Exercise'!
+OOStackStateNotEmpty class
+	instanceVariableNames: ''!
+
+!OOStackStateNotEmpty class methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:52:35'!
+validateStackState: aStack
+	^(aStack isEmpty) not.! !
+
+
 !classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
 Object subclass: #SentenceFinderByPrefix
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:15:09'!
+find: aPrefix! !

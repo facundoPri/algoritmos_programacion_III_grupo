@@ -139,10 +139,86 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'sentencesToPass sentenceFinder'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:20:06'!
+setUp
+	sentencesToPass := OrderedCollection with: 'winter is coming' with: 'winning is everything' with: 'The winds of Winter' with:'Winter is here'.
+	
+	sentenceFinder := SentenceFinderByPrefix with: sentencesToPass.
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:31:29'!
+test01SenteceFinderAmountEqualsToFourAfterCreation
+
+	self assert: sentenceFinder sentencesAmount equals: 4.
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:17:52'!
+test02FindASentenceByPrefixReturnsOneSentenceInOrderedCollection
+	| sentences |
+	
+	sentences := sentenceFinder find: 'Wint'.
+	
+	self assert: sentences first equals: 'Winter is here'.
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:48:00'!
+test03FindASentenceByPrefixReturnsMoreThanOneSentenceInOrderedCollection
+	| sentencesFound sentencesShouldFound|
+	
+	sentencesShouldFound := OrderedCollection with: 'winter is coming' with: 'winning is everything'.
+	sentencesFound := sentenceFinder find: 'win'.
+	
+	self assert: sentencesFound equals: 	sentencesShouldFound .
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:18:30'!
+test04FindASentenceByPrefixReturnsEmptyOrderedCollectionIfNoSentenceWithPrefixFound
+	| sentences |
+	
+	sentences := sentenceFinder find: 'fruta'.
+	
+	self assert: sentences size equals: 0.
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:55:28'!
+test05EmptyPrefixIsInvalid
+
+	self
+		should: [ sentenceFinder find: '' ]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = SentenceFinderByPrefix invalidPrefixErrorDesciption ]
+		
+
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:55:44'!
+test06PrefixWithSpacesIsInvalid
+	
+	self
+		should: [ sentenceFinder find: 'wi nn' ]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = SentenceFinderByPrefix invalidPrefixErrorDesciption ]
+		
+
+	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:55:52'!
+test07SentencesOfSentenceFinderDoNotChangeAfterFinding
+	| sentencesContained |
+
+	sentencesContained := sentenceFinder sentences.
+	
+	self assert: sentencesContained equals: sentencesToPass.
+		
+
+	! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
@@ -202,6 +278,14 @@ Object subclass: #OOStackState
 
 !OOStackState methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:40:00'!
 initializeWith: aStack
+	self subclassResponsibility.! !
+
+!OOStackState methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:41:12'!
+popByState
+	self subclassResponsibility.! !
+
+!OOStackState methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:41:31'!
+topByState
 	self subclassResponsibility.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -277,12 +361,193 @@ validateStackState: aStack
 	^(aStack isEmpty) not.! !
 
 
-!classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
-Object subclass: #SentenceFinderByPrefix
+!classDefinition: #PrefixValidationState category: 'Stack-Exercise'!
+Object subclass: #PrefixValidationState
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:15:09'!
-find: aPrefix! !
+!PrefixValidationState methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:40:25'!
+findOn: stackOfSentences
+	self subclassResponsibility.! !
+
+!PrefixValidationState methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:40:41'!
+initializeWith: aPrefix
+	self subclassResponsibility.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PrefixValidationState class' category: 'Stack-Exercise'!
+PrefixValidationState class
+	instanceVariableNames: ''!
+
+!PrefixValidationState class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:24:27'!
+invalidPrefixErrorDesciption
+	^'Prefix is invalid'! !
+
+!PrefixValidationState class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:21:55'!
+with: aPrefix
+	
+	^((self subclasses ) detect: [:aSubclass |
+		aSubclass validatePrefixState: aPrefix
+		]) new initializeWith: aPrefix .! !
+
+
+!classDefinition: #PrefixEmpty category: 'Stack-Exercise'!
+PrefixValidationState subclass: #PrefixEmpty
+	instanceVariableNames: 'prefix'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!PrefixEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:25:09'!
+findOn: aStackOfSentences
+	self error: self class invalidPrefixErrorDesciption.! !
+
+!PrefixEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:22:22'!
+initializeWith: aPrefix
+	prefix := aPrefix.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PrefixEmpty class' category: 'Stack-Exercise'!
+PrefixEmpty class
+	instanceVariableNames: ''!
+
+!PrefixEmpty class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:12:08'!
+validatePrefixState: aPrefix
+	^(aPrefix = '')! !
+
+
+!classDefinition: #PrefixValid category: 'Stack-Exercise'!
+PrefixValidationState subclass: #PrefixValid
+	instanceVariableNames: 'prefix'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!PrefixValid methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:31:34'!
+findOn: stackOfSentences
+
+	|stackAux sentencesFound s |
+
+	stackAux := OOStack new.
+	sentencesFound := OrderedCollection new.
+	
+	[(stackOfSentences isEmpty)not] whileTrue: [
+		s := stackOfSentences pop.
+		stackAux push: s.
+		(s beginsWith: prefix) ifTrue: [
+			sentencesFound addFirst: s.
+			].
+		].
+	[(stackAux isEmpty)not] whileTrue: [
+		s := stackAux pop.
+		stackOfSentences push: s.
+		].
+	
+	^sentencesFound.! !
+
+!PrefixValid methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:32:10'!
+initializeWith: aPrefix
+	prefix := aPrefix.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PrefixValid class' category: 'Stack-Exercise'!
+PrefixValid class
+	instanceVariableNames: ''!
+
+!PrefixValid class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:29:11'!
+validatePrefixState: aPrefix
+	^((PrefixEmpty validatePrefixState: aPrefix) not) and: (PrefixWithSpace validatePrefixState: aPrefix) not! !
+
+
+!classDefinition: #PrefixWithSpace category: 'Stack-Exercise'!
+PrefixValidationState subclass: #PrefixWithSpace
+	instanceVariableNames: 'prefix'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!PrefixWithSpace methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:25:20'!
+findOn: aStackOfSentences
+	self error: self class invalidPrefixErrorDesciption.! !
+
+!PrefixWithSpace methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:22:31'!
+initializeWith: aPrefix
+	prefix := aPrefix.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PrefixWithSpace class' category: 'Stack-Exercise'!
+PrefixWithSpace class
+	instanceVariableNames: ''!
+
+!PrefixWithSpace class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:12:44'!
+validatePrefixState: aPrefix
+	^(aPrefix anySatisfy: [:c | c = $ .]).! !
+
+
+!classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
+Object subclass: #SentenceFinderByPrefix
+	instanceVariableNames: 'stackOfSentences'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:31:37'!
+find: aPrefix	
+	^(self validatePrefix: aPrefix) findOn: stackOfSentences.
+	! !
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:31:09'!
+initializeWith: anOrderedCollectionOfSentences
+	stackOfSentences := OOStack new.
+	anOrderedCollectionOfSentences do: [ :sentence |
+		stackOfSentences push: sentence
+		].
+	! !
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:45:06'!
+sentences
+	|stackAux sentencesFound s |
+	
+	stackAux := OOStack new.
+	sentencesFound := OrderedCollection new.
+	
+	[(stackOfSentences isEmpty)not] whileTrue: [
+		s := stackOfSentences pop.
+		stackAux push: s.
+		sentencesFound addFirst: s.
+		].
+	[(stackAux isEmpty)not] whileTrue: [
+		s := stackAux pop.
+		stackOfSentences push: s.
+		].
+	
+	^sentencesFound.! !
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:29:38'!
+sentencesAmount
+	^stackOfSentences size.! !
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:20:53'!
+validatePrefix: aPrefix
+	^(PrefixValidationState with: aPrefix).! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SentenceFinderByPrefix class' category: 'Stack-Exercise'!
+SentenceFinderByPrefix class
+	instanceVariableNames: ''!
+
+!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:52:59'!
+invalidPrefixErrorDesciption
+	^'Prefix is invalid'! !
+
+!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:28:02'!
+with: anOrderedCollectionOfSentences
+	
+	^self new initializeWith: anOrderedCollectionOfSentences.! !

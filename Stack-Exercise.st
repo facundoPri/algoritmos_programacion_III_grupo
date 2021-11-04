@@ -223,26 +223,36 @@ test07SentencesOfSentenceFinderDoNotChangeAfterFinding
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
-	instanceVariableNames: 'stack'
+	instanceVariableNames: 'stack limit'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:05:28'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:52:53'!
 initialize
-	stack := OrderedCollection new.! !
+	stack := OrderedCollection new.
+	limit := nil.! !
+
+!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:54:00'!
+initializeWithLimit: aLimit
+	stack := OrderedCollection new.
+	limit := aLimit.! !
 
 !OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 18:16:02'!
 isEmpty
 	^(stack isEmpty)! !
 
+!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:53:13'!
+limit
+	^limit! !
+
 !OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:02:45'!
 pop
 	^(self stackState) popByState .! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:27:30'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:44:29'!
 push: something
-	stack add: something.! !
+	^(self stackState) pushByState: something .! !
 
 !OOStack methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 18:17:35'!
 size
@@ -267,6 +277,15 @@ OOStack class
 stackEmptyErrorDescription
 	
 	^ 'Stack is empty'! !
+
+!OOStack class methodsFor: 'error descriptions' stamp: 'RS 11/3/2021 21:48:18'!
+stackFullErrorDescription
+	^'Stack is full'! !
+
+
+!OOStack class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:55:16'!
+withAlimit: aLimit
+	^self new initializeWithLimit: aLimit.! !
 
 
 !classDefinition: #OOStackState category: 'Stack-Exercise'!
@@ -316,6 +335,10 @@ initializeWith: aStack
 popByState
 	self error: OOStack stackEmptyErrorDescription.! !
 
+!OOStackStateEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:46:14'!
+pushByState: something
+	^stack add: something.! !
+
 !OOStackStateEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:02:07'!
 topByState
 	self error: OOStack stackEmptyErrorDescription.! !
@@ -346,6 +369,10 @@ initializeWith: aStack
 popByState
 	^stack removeLast! !
 
+!OOStackStateNotEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:45:17'!
+pushByState: something
+	^stack add: something.! !
+
 !OOStackStateNotEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 20:02:33'!
 topByState
 	^stack last.! !
@@ -359,6 +386,40 @@ OOStackStateNotEmpty class
 !OOStackStateNotEmpty class methodsFor: 'as yet unclassified' stamp: 'RS 11/2/2021 19:52:35'!
 validateStackState: aStack
 	^(aStack isEmpty) not.! !
+
+
+!classDefinition: #OOStackStateWithLimit category: 'Stack-Exercise'!
+OOStackState subclass: #OOStackStateWithLimit
+	instanceVariableNames: 'stack'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!OOStackStateWithLimit methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:42:54'!
+initializeWith: aStack
+	stack := aStack! !
+
+!OOStackStateWithLimit methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:43:12'!
+popByState
+	^stack removeLast! !
+
+!OOStackStateWithLimit methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:46:51'!
+pushByState: something
+	^self error: self class stackFullErrorDescription .! !
+
+!OOStackStateWithLimit methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:43:25'!
+topByState
+	^stack last.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'OOStackStateWithLimit class' category: 'Stack-Exercise'!
+OOStackStateWithLimit class
+	instanceVariableNames: ''!
+
+!OOStackStateWithLimit class methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:50:42'!
+validateStackState: aStack
+	^(aStack size = aStack limit).! !
 
 
 !classDefinition: #PrefixValidationState category: 'Stack-Exercise'!

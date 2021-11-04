@@ -5,7 +5,57 @@ TestCase subclass: #OOStackTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStackTest methodsFor: 'test' stamp: 'HernanWilkinson 5/7/2012 11:30'!
+!OOStackTest methodsFor: 'test Limited Stack' stamp: 'RS 11/4/2021 18:20:21'!
+test11LimitedStackShouldBeEmptyWhenCreated
+
+	| stack  |
+	
+	stack := OOStack withAlimit: 5.
+	
+	self assert: stack isEmpty! !
+
+!OOStackTest methodsFor: 'test Limited Stack' stamp: 'RS 11/4/2021 18:21:36'!
+test12PushAddsElementToLimitedStack
+
+	| stack  |
+	
+	stack := OOStack withAlimit: 5.
+	
+	stack push: 'something'.
+	
+	self deny: stack isEmpty! !
+
+!OOStackTest methodsFor: 'test Limited Stack' stamp: 'RS 11/4/2021 18:23:31'!
+test13PopRemovesElementsFromTheLimitedStack
+
+	| stack |
+	
+	stack := OOStack withAlimit: 5.
+	stack push: 'something'.
+	stack pop.
+	
+	self assert: stack isEmpty! !
+
+!OOStackTest methodsFor: 'test Limited Stack' stamp: 'RS 11/4/2021 18:30:16'!
+test14CanNotPushWhenTheLimitedStackIsFull
+
+	| stack  |
+	
+	stack := OOStack withAlimit: 5.
+	
+	#('first' 'second' 'third' 'fourth' 'five') do: [:e |
+		stack push: e].
+	
+	self
+		should: [ stack push:'sixth sense' ]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = OOStack stackFullErrorDescription ]
+		
+! !
+
+
+!OOStackTest methodsFor: 'test Stack' stamp: 'HernanWilkinson 5/7/2012 11:30'!
 test01StackShouldBeEmptyWhenCreated
 
 	| stack |
@@ -14,7 +64,7 @@ test01StackShouldBeEmptyWhenCreated
 	
 	self assert: stack isEmpty! !
 
-!OOStackTest methodsFor: 'test' stamp: 'NR 5/13/2020 13:29:55'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'RS 11/4/2021 18:22:26'!
 test02PushAddElementsToTheStack
 
 	| stack |
@@ -24,7 +74,7 @@ test02PushAddElementsToTheStack
 	
 	self deny: stack isEmpty! !
 
-!OOStackTest methodsFor: 'test' stamp: 'NR 5/13/2020 13:30:01'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'NR 5/13/2020 13:30:01'!
 test03PopRemovesElementsFromTheStack
 
 	| stack |
@@ -35,7 +85,7 @@ test03PopRemovesElementsFromTheStack
 	
 	self assert: stack isEmpty! !
 
-!OOStackTest methodsFor: 'test' stamp: 'NR 5/13/2020 13:30:09'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'NR 5/13/2020 13:30:09'!
 test04PopReturnsLastPushedObject
 
 	| stack pushedObject |
@@ -46,7 +96,7 @@ test04PopReturnsLastPushedObject
 	
 	self assert: stack pop = pushedObject! !
 
-!OOStackTest methodsFor: 'test' stamp: 'NR 5/13/2020 13:30:48'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'NR 5/13/2020 13:30:48'!
 test05StackBehavesLIFO
 
 	| stack firstPushedObject secondPushedObject |
@@ -63,7 +113,7 @@ test05StackBehavesLIFO
 	self assert: stack isEmpty 
 	! !
 
-!OOStackTest methodsFor: 'test' stamp: 'NR 5/13/2020 13:30:20'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'NR 5/13/2020 13:30:20'!
 test06TopReturnsLastPushedObject
 
 	| stack pushedObject |
@@ -76,7 +126,7 @@ test06TopReturnsLastPushedObject
 	self assert: stack top = pushedObject.
 	! !
 
-!OOStackTest methodsFor: 'test' stamp: 'NR 5/13/2020 13:30:24'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'NR 5/13/2020 13:30:24'!
 test07TopDoesNotRemoveObjectFromStack
 
 	| stack pushedObject |
@@ -91,7 +141,7 @@ test07TopDoesNotRemoveObjectFromStack
 	self assert: stack size = 1.
 	! !
 
-!OOStackTest methodsFor: 'test' stamp: 'HAW 4/14/2017 22:48:26'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'HAW 4/14/2017 22:48:26'!
 test08CanNotPopWhenThereAreNoObjectsInTheStack
 
 	| stack  |
@@ -105,7 +155,7 @@ test08CanNotPopWhenThereAreNoObjectsInTheStack
 		
 ! !
 
-!OOStackTest methodsFor: 'test' stamp: 'NR 5/13/2020 13:30:31'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'NR 5/13/2020 13:30:31'!
 test09CanNotPopWhenThereAreNoObjectsInTheStackAndTheStackHadObjects
 
 	| stack  |
@@ -122,7 +172,7 @@ test09CanNotPopWhenThereAreNoObjectsInTheStackAndTheStackHadObjects
 		
 ! !
 
-!OOStackTest methodsFor: 'test' stamp: 'HAW 4/14/2017 22:48:44'!
+!OOStackTest methodsFor: 'test Stack' stamp: 'HAW 4/14/2017 22:48:44'!
 test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 	| stack  |
@@ -254,9 +304,9 @@ size
 	^stack size! !
 
 
-!OOStack methodsFor: 'private' stamp: 'RS 11/2/2021 20:10:37'!
+!OOStack methodsFor: 'private' stamp: 'RS 11/4/2021 18:52:51'!
 stackState
-	^OOStackState with: stack.
+	^OOStackState with: stack aLimit: limit .
 ! !
 
 
@@ -320,10 +370,10 @@ topByState
 OOStackState class
 	instanceVariableNames: ''!
 
-!OOStackState class methodsFor: 'class initialization' stamp: 'RS 11/2/2021 20:10:37'!
-with: aStack
+!OOStackState class methodsFor: 'class initialization' stamp: 'RS 11/4/2021 19:03:54'!
+with: aStack aLimit: aLimit 
 	^( (self subclasses) detect: [ :aState |
-		aState validateStackState: aStack
+		aState validateStackState: aStack withAlimit:aLimit.
 		]) new initializeWith: aStack.! !
 
 
@@ -357,8 +407,8 @@ topByState
 OOStackStateEmpty class
 	instanceVariableNames: ''!
 
-!OOStackStateEmpty class methodsFor: 'validation' stamp: 'RS 11/2/2021 19:52:52'!
-validateStackState: aStack
+!OOStackStateEmpty class methodsFor: 'validation' stamp: 'RS 11/4/2021 18:59:43'!
+validateStackState: aStack withAlimit: aLimit 
 	^aStack isEmpty.! !
 
 
@@ -392,9 +442,23 @@ topByState
 OOStackStateNotEmpty class
 	instanceVariableNames: ''!
 
-!OOStackStateNotEmpty class methodsFor: 'validation' stamp: 'RS 11/2/2021 19:52:35'!
-validateStackState: aStack
+!OOStackStateNotEmpty class methodsFor: 'validation' stamp: 'RS 11/4/2021 19:15:18'!
+hasNoLimit: aLimit
+	^(aLimit = nil).! !
+
+!OOStackStateNotEmpty class methodsFor: 'validation' stamp: 'RS 11/4/2021 19:17:11'!
+hasNotReachLimit: aStack of: aLimit  
+	^((aLimit = nil)not) and: [(aStack size = aLimit)not].! !
+
+!OOStackStateNotEmpty class methodsFor: 'validation' stamp: 'RS 11/4/2021 18:41:00'!
+isNotEmpty: aStack
 	^(aStack isEmpty) not.! !
+
+!OOStackStateNotEmpty class methodsFor: 'validation' stamp: 'RS 11/4/2021 18:55:48'!
+validateStackState: aStack withAlimit: aLimit 
+	^(self isNotEmpty: aStack) and:[ 
+		(self hasNoLimit: aLimit) or: [self hasNotReachLimit: aStack of: aLimit ] 
+		] .! !
 
 
 !classDefinition: #OOStackStateWithLimit category: 'Stack-Exercise'!
@@ -413,9 +477,9 @@ initializeWith: aStack
 popByState
 	^stack removeLast! !
 
-!OOStackStateWithLimit methodsFor: 'stack operations' stamp: 'RS 11/3/2021 21:46:51'!
+!OOStackStateWithLimit methodsFor: 'stack operations' stamp: 'RS 11/4/2021 19:06:24'!
 pushByState: something
-	^self error: self class stackFullErrorDescription .! !
+	self error: OOStack stackFullErrorDescription .! !
 
 !OOStackStateWithLimit methodsFor: 'stack operations' stamp: 'RS 11/3/2021 21:43:25'!
 topByState
@@ -427,9 +491,9 @@ topByState
 OOStackStateWithLimit class
 	instanceVariableNames: ''!
 
-!OOStackStateWithLimit class methodsFor: 'validation' stamp: 'RS 11/3/2021 21:50:42'!
-validateStackState: aStack
-	^(aStack size = aStack limit).! !
+!OOStackStateWithLimit class methodsFor: 'validation' stamp: 'RS 11/4/2021 18:59:35'!
+validateStackState: aStack withAlimit: aLimit 
+	^(aStack size = aLimit).! !
 
 
 !classDefinition: #PrefixValidationState category: 'Stack-Exercise'!

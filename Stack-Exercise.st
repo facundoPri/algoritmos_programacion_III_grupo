@@ -368,8 +368,8 @@ Object subclass: #PrefixValidationState
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!PrefixValidationState methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:40:25'!
-findOn: stackOfSentences
+!PrefixValidationState methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:38:16'!
+allowToFindOn: stackOfSentences
 	self subclassResponsibility.! !
 
 !PrefixValidationState methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:40:41'!
@@ -401,8 +401,8 @@ PrefixValidationState subclass: #PrefixEmpty
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!PrefixEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 20:48:38'!
-findOn: aSentenceFinder
+!PrefixEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:38:17'!
+allowToFindOn: aSentenceFinder
 	self error: self class invalidPrefixErrorDesciption.! !
 
 !PrefixEmpty methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:22:22'!
@@ -427,8 +427,8 @@ PrefixValidationState subclass: #PrefixValid
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!PrefixValid methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 20:59:09'!
-findOn: aSentenceFinder
+!PrefixValid methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:38:17'!
+allowToFindOn: aSentenceFinder
 	^aSentenceFinder findWithValidPrefix: prefix.! !
 
 !PrefixValid methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:32:10'!
@@ -453,8 +453,8 @@ PrefixValidationState subclass: #PrefixWithSpace
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!PrefixWithSpace methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 20:48:44'!
-findOn: aSentenceFinder
+!PrefixWithSpace methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:38:17'!
+allowToFindOn: aSentenceFinder
 	self error: self class invalidPrefixErrorDesciption.! !
 
 !PrefixWithSpace methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 19:22:31'!
@@ -479,32 +479,32 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 20:58:05'!
-find: aPrefix	
-	^(self prefixState: aPrefix) findOn: self.
-	! !
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:32:24'!
+collectSentencesFromStackWithCondition: aBlockCondition
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 20:56:58'!
-findWithValidPrefix: aPrefix
 	|auxiliaryStack sentencesFound sentence |
 
-	auxiliaryStack := OOStack new.
+	auxiliaryStack := stackOfSentences veryDeepCopy.
 	sentencesFound := OrderedCollection new.
-	
-	[(stackOfSentences isEmpty)not] whileTrue: [
-		sentence := stackOfSentences pop.
-		auxiliaryStack push: sentence.
-		(sentence beginsWith: aPrefix) ifTrue: [
-			sentencesFound addFirst: sentence.
-			].
-		].
 	
 	[(auxiliaryStack isEmpty)not] whileTrue: [
 		sentence := auxiliaryStack pop.
-		stackOfSentences push: sentence.
+		
+		(aBlockCondition value: sentence ) ifTrue: [
+			sentencesFound addFirst: sentence.
+			].
+		
 		].
-	
 	^sentencesFound.	! !
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:38:17'!
+find: aPrefix	
+	^(self prefixState: aPrefix) allowToFindOn: self.
+	! !
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:32:24'!
+findWithValidPrefix: aPrefix
+	^ self collectSentencesFromStackWithCondition: [ :aSentence | aSentence beginsWith: aPrefix].! !
 
 !SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:31:09'!
 initializeWith: anOrderedCollectionOfSentences
@@ -518,24 +518,9 @@ initializeWith: anOrderedCollectionOfSentences
 prefixState: aPrefix
 	^(PrefixValidationState with: aPrefix).! !
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:45:06'!
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 21:33:01'!
 sentences
-	|stackAux sentencesFound s |
-	
-	stackAux := OOStack new.
-	sentencesFound := OrderedCollection new.
-	
-	[(stackOfSentences isEmpty)not] whileTrue: [
-		s := stackOfSentences pop.
-		stackAux push: s.
-		sentencesFound addFirst: s.
-		].
-	[(stackAux isEmpty)not] whileTrue: [
-		s := stackAux pop.
-		stackOfSentences push: s.
-		].
-	
-	^sentencesFound.! !
+	^self collectSentencesFromStackWithCondition: [:a | true].! !
 
 !SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'RS 11/3/2021 18:29:38'!
 sentencesAmount

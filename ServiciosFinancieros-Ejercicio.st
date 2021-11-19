@@ -89,6 +89,54 @@ test07AccountKnowsItsTransactions
 ! !
 
 
+!classDefinition: #TransferTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #TransferTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 17:50:57'!
+test01DestinationAccountIncreasesBalanceAnOriginAccountDecreasesBalanceOnTransfer
+
+	| destinationAccount originAccount |
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	
+	Transfer from: originAccount to: destinationAccount for: 100*peso.
+	
+	self assert: originAccount balance equals: -100*peso.
+	self assert: destinationAccount balance equals: 100*peso.! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 18:16:05'!
+test02CannotTransferNegativeAmount
+
+	| destinationAccount originAccount |
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	
+	self
+		should: [	Transfer from: originAccount to: destinationAccount for: -100*peso.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:anError |
+			self assert: anError messageText = Transfer negativeAmountErrorDescription.
+			self assert: destinationAccount balance equals: 0*peso.
+			self assert: originAccount balance equals: 0*peso.
+		].! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 19:04:08'!
+test03
+
+	| destinationAccount originAccount aTransference |
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	
+	aTransference := Transfer from: originAccount to: destinationAccount for: 100*peso.
+	self assert: (aTransference withdrawal) counterparty equals: aTransference deposit.
+	self assert: (aTransference deposit) counterparty equals: aTransference withdrawal.
+	! !
+
+
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
 	instanceVariableNames: ''
@@ -120,7 +168,7 @@ register: aValue on: account
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Deposit
-	instanceVariableNames: 'value'
+	instanceVariableNames: 'value counterparty'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -150,7 +198,7 @@ for: aValue
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Withdraw
-	instanceVariableNames: 'value'
+	instanceVariableNames: 'value counterparty'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -191,19 +239,18 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/18/2021 21:50:16'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/19/2021 17:24:51'!
 balance
-	| sum |
-	sum:=0*peso.
-	transactions do: [ :aTransaction | 
+	
+	^transactions sum: [ :aTransaction | 
 		(aTransaction isKindOf: Withdraw) ifTrue:[
-			sum := sum +(aTransaction value * -1)
+			(aTransaction value negated)
+		]
+		ifFalse:[
+			aTransaction value
 		].
-		(aTransaction isKindOf: Deposit) ifTrue:[
-			sum := sum +aTransaction value
-		].
-		 ].
-	^sum ! !
+	] ifEmpty:[0]
+	! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
 hasRegistered: aTransaction
@@ -221,3 +268,37 @@ register: aTransaction
 transactions 
 
 	^ transactions copy! !
+
+
+!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Transfer
+	instanceVariableNames: 'deposit withdrawal'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 19:09:55'!
+initializeFrom: anOriginAccount to: aDestinationAccount for: anAmount
+
+	deposit :=Deposit register: anAmount on: aDestinationAccount.
+	withdrawal:=Withdraw register: anAmount on: anOriginAccount.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
+Transfer class
+	instanceVariableNames: ''!
+
+!Transfer class methodsFor: 'instance creation' stamp: 'fp 11/19/2021 19:08:12'!
+from: anOriginAccount to: aDestinationAccount for: anAmount
+
+ 	(anAmount < 0)ifTrue:[
+		self error: self negativeAmountErrorDescription.
+	].
+	
+	^self new initializeFrom: anOriginAccount to: aDestinationAccount for: anAmount! !
+
+!Transfer class methodsFor: 'instance creation' stamp: 'fp 11/19/2021 18:08:05'!
+negativeAmountErrorDescription
+	^'Amount is negative'! !
+

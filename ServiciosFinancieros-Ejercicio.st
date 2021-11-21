@@ -96,17 +96,17 @@ TestCase subclass: #TransferTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 17:50:57'!
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 18:26:41'!
 test01DestinationAccountIncreasesBalanceAnOriginAccountDecreasesBalanceOnTransfer
 
 	| destinationAccount originAccount |
 	originAccount := ReceptiveAccount new.
 	destinationAccount := ReceptiveAccount new.
 	
-	Transfer from: originAccount to: destinationAccount for: 100*peso.
+	Transfer from: originAccount to: destinationAccount for: 100 * peso.
 	
-	self assert: originAccount balance equals: -100*peso.
-	self assert: destinationAccount balance equals: 100*peso.! !
+	self assert: originAccount balance equals: -100 * peso.
+	self assert: destinationAccount balance equals: 100 * peso.! !
 
 !TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 18:16:05'!
 test02CannotTransferNegativeAmount
@@ -124,17 +124,17 @@ test02CannotTransferNegativeAmount
 			self assert: originAccount balance equals: 0*peso.
 		].! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 19:04:08'!
-test03
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 17:57:51'!
+test03EachLegAnswersItsCounterparty
 
 	| destinationAccount originAccount aTransference |
 	originAccount := ReceptiveAccount new.
 	destinationAccount := ReceptiveAccount new.
 	
 	aTransference := Transfer from: originAccount to: destinationAccount for: 100*peso.
+	
 	self assert: (aTransference withdrawal) counterparty equals: aTransference deposit.
-	self assert: (aTransference deposit) counterparty equals: aTransference withdrawal.
-	! !
+	self assert: (aTransference deposit) counterparty equals: aTransference withdrawal.! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -143,6 +143,16 @@ Object subclass: #AccountTransaction
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
+
+!AccountTransaction methodsFor: 'value' stamp: 'fp 11/21/2021 17:49:06'!
+counterparty
+
+	self subclassResponsibility ! !
+
+!AccountTransaction methodsFor: 'value' stamp: 'fp 11/21/2021 18:13:33'!
+defineCounterparty: aCounterparty
+
+	self subclassResponsibility ! !
 
 !AccountTransaction methodsFor: 'value' stamp: 'HernanWilkinson 9/12/2011 12:25'!
 value 
@@ -179,6 +189,21 @@ initializeFor: aValue
 	value := aValue ! !
 
 
+!Deposit methodsFor: 'value' stamp: 'fp 11/21/2021 17:48:50'!
+counterparty
+
+	^counterparty! !
+
+!Deposit methodsFor: 'value' stamp: 'fp 11/21/2021 18:13:33'!
+defineCounterparty: aCounterparty
+
+	counterparty := aCounterparty ! !
+
+!Deposit methodsFor: 'value' stamp: 'fp 11/21/2021 18:11:50'!
+transactionValue
+
+	^ value! !
+
 !Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
 value
 
@@ -208,6 +233,21 @@ initializeFor: aValue
 
 	value := aValue ! !
 
+
+!Withdraw methodsFor: 'value' stamp: 'fp 11/21/2021 17:48:58'!
+counterparty
+
+	^counterparty! !
+
+!Withdraw methodsFor: 'value' stamp: 'fp 11/21/2021 18:13:33'!
+defineCounterparty: aCounterparty
+
+	counterparty := aCounterparty ! !
+
+!Withdraw methodsFor: 'value' stamp: 'fp 11/21/2021 18:11:41'!
+transactionValue
+
+	^ value negated! !
 
 !Withdraw methodsFor: 'value' stamp: 'fp 11/18/2021 21:36:12'!
 value
@@ -239,16 +279,11 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/19/2021 17:24:51'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/21/2021 18:12:16'!
 balance
 	
 	^transactions sum: [ :aTransaction | 
-		(aTransaction isKindOf: Withdraw) ifTrue:[
-			(aTransaction value negated)
-		]
-		ifFalse:[
-			aTransaction value
-		].
+			aTransaction transactionValue 
 	] ifEmpty:[0]
 	! !
 
@@ -264,7 +299,7 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/21/2021 17:57:53'!
 transactions 
 
 	^ transactions copy! !
@@ -277,11 +312,24 @@ Object subclass: #Transfer
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 19:09:55'!
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 17:50:09'!
+deposit
+
+	^deposit ! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 18:13:33'!
 initializeFrom: anOriginAccount to: aDestinationAccount for: anAmount
 
-	deposit :=Deposit register: anAmount on: aDestinationAccount.
-	withdrawal:=Withdraw register: anAmount on: anOriginAccount.! !
+	deposit := Deposit register: anAmount on: aDestinationAccount.
+	withdrawal := Withdraw register: anAmount on: anOriginAccount.
+	
+	deposit defineCounterparty: withdrawal.
+	withdrawal defineCounterparty: deposit.! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 17:50:12'!
+withdrawal
+
+	^withdrawal ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -289,10 +337,10 @@ initializeFrom: anOriginAccount to: aDestinationAccount for: anAmount
 Transfer class
 	instanceVariableNames: ''!
 
-!Transfer class methodsFor: 'instance creation' stamp: 'fp 11/19/2021 19:08:12'!
+!Transfer class methodsFor: 'instance creation' stamp: 'fp 11/21/2021 18:04:54'!
 from: anOriginAccount to: aDestinationAccount for: anAmount
 
- 	(anAmount < 0)ifTrue:[
+ 	(anAmount < 0) ifTrue:[
 		self error: self negativeAmountErrorDescription.
 	].
 	
@@ -301,4 +349,3 @@ from: anOriginAccount to: aDestinationAccount for: anAmount
 !Transfer class methodsFor: 'instance creation' stamp: 'fp 11/19/2021 18:08:05'!
 negativeAmountErrorDescription
 	^'Amount is negative'! !
-

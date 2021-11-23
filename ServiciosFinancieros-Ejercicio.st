@@ -38,7 +38,7 @@ test03WhenPorfolioHasMoreThanOneAccountTheBalanceIsTheSumOfTheBalances
 	
 	self assert: 150 * peso equals: portfolio balance.! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 20:14:36'!
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 20:17:19'!
 test04ATransactionRegisteredOnAnAccountInPortfolioIsFound
 
 	| portfolio account deposit |
@@ -50,7 +50,38 @@ test04ATransactionRegisteredOnAnAccountInPortfolioIsFound
 
 	portfolio addAccount: account.
 
-	self assert: (portfolio hasRegistered: deposit).! !
+	self assert: (portfolio hasRegistered: deposit).
+	! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 20:23:35'!
+test05PortfolioCantFindTransactionNotRegistered
+
+	| portfolio account deposit |
+	
+	portfolio := Portfolio new.
+	account := ReceptiveAccount new.
+	
+	deposit := Deposit for: 100 * peso.
+
+	portfolio addAccount: account.
+
+	self deny: (portfolio hasRegistered: deposit).
+	! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 20:37:51'!
+test06PortfolioCanReturnTheTransactionsOfOneOfItsAccounts
+
+	| portfolio account |
+	
+	portfolio := Portfolio new.
+	account := ReceptiveAccount new.
+	
+	Deposit register: 100 * peso on: account.
+	Withdraw register: 50 * peso on: account.
+
+	portfolio addAccount: account.
+
+	self assert: account transactions equals: (portfolio transactionsOf: account).! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
@@ -393,10 +424,12 @@ Object subclass: #Portfolio
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Portfolio methodsFor: 'initialization' stamp: 'fp 11/23/2021 20:14:22'!
+!Portfolio methodsFor: 'initialization' stamp: 'fp 11/23/2021 20:26:13'!
 hasRegistered: aTransaction
 	
-	^ true! !
+	^accounts anySatisfy: [:anAccount|
+		anAccount hasRegistered: aTransaction.
+	]! !
 
 !Portfolio methodsFor: 'initialization' stamp: 'fp 11/23/2021 19:41:38'!
 initialize
@@ -410,6 +443,10 @@ balance
  	^accounts sum: [ :anAccount | 
 			anAccount balance. 
 	] ifEmpty:[0]! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'fp 11/23/2021 20:39:02'!
+transactionsOf: aReceptiveAccount 
+	^aReceptiveAccount transactions! !
 
 
 !Portfolio methodsFor: 'associating' stamp: 'fp 11/23/2021 19:43:23'!

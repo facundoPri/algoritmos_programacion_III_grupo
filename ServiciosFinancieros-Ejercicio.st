@@ -1,3 +1,58 @@
+!classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #PortfolioTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:12:06'!
+test01EmptyPortfolioHasBalanceOfZero
+
+	| portfolio |
+	portfolio := Portfolio new.
+	
+	self assert: 0 equals: portfolio balance.! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:26:21'!
+test02WhenPorfolioHasOneAccountBothBalanceAreTheSame
+
+	| portfolio account |
+	portfolio := Portfolio new.
+	account := ReceptiveAccount new.
+	Deposit register: 100 * peso on: account.
+	portfolio addAccount: account.
+	
+	self assert: 100 * peso equals: portfolio balance.! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:40:16'!
+test03WhenPorfolioHasMoreThanOneAccountTheBalanceIsTheSumOfTheBalances
+
+	| portfolio account1 account2 |
+	portfolio := Portfolio new.
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	Deposit register: 100 * peso on: account1.
+	Deposit register: 50 * peso on: account2.
+	portfolio addAccount: account1.
+	portfolio addAccount: account2.
+	
+	self assert: 150 * peso equals: portfolio balance.! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 20:14:36'!
+test04ATransactionRegisteredOnAnAccountInPortfolioIsFound
+
+	| portfolio account deposit |
+	
+	portfolio := Portfolio new.
+	account := ReceptiveAccount new.
+	
+	deposit := Deposit register: 100 * peso on: account.
+
+	portfolio addAccount: account.
+
+	self assert: (portfolio hasRegistered: deposit).! !
+
+
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
 	instanceVariableNames: ''
@@ -124,7 +179,7 @@ test02CannotTransferNegativeAmount
 			self assert: originAccount balance equals: 0*peso.
 		].! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 17:57:51'!
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:02:33'!
 test03EachLegAnswersItsCounterparty
 
 	| destinationAccount originAccount aTransference |
@@ -133,8 +188,8 @@ test03EachLegAnswersItsCounterparty
 	
 	aTransference := Transfer from: originAccount to: destinationAccount for: 100*peso.
 	
-	self assert: (aTransference withdrawal) counterparty equals: aTransference deposit.
-	self assert: (aTransference deposit) counterparty equals: aTransference withdrawal.! !
+	self assert: (aTransference withdrawalLeg) counterparty equals: aTransference depositLeg.
+	self assert: (aTransference depositLeg) counterparty equals: aTransference withdrawalLeg.! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -144,13 +199,8 @@ Object subclass: #AccountTransaction
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!AccountTransaction methodsFor: 'value' stamp: 'fp 11/21/2021 17:49:06'!
-counterparty
-
-	self subclassResponsibility ! !
-
-!AccountTransaction methodsFor: 'value' stamp: 'fp 11/21/2021 18:13:33'!
-defineCounterparty: aCounterparty
+!AccountTransaction methodsFor: 'value' stamp: 'fp 11/23/2021 18:55:24'!
+transactionValue
 
 	self subclassResponsibility ! !
 
@@ -189,16 +239,6 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Deposit methodsFor: 'value' stamp: 'fp 11/21/2021 17:48:50'!
-counterparty
-
-	^counterparty! !
-
-!Deposit methodsFor: 'value' stamp: 'fp 11/21/2021 18:13:33'!
-defineCounterparty: aCounterparty
-
-	counterparty := aCounterparty ! !
-
 !Deposit methodsFor: 'value' stamp: 'fp 11/21/2021 18:11:50'!
 transactionValue
 
@@ -221,6 +261,51 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
+!classDefinition: #DepositLeg category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #DepositLeg
+	instanceVariableNames: 'value counterparty'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!DepositLeg methodsFor: 'initialization' stamp: 'fp 11/23/2021 18:56:41'!
+initializeFor: aValue
+
+	value := aValue ! !
+
+
+!DepositLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:41'!
+counterparty
+
+	^counterparty! !
+
+!DepositLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:41'!
+defineCounterparty: aCounterparty
+
+	counterparty := aCounterparty ! !
+
+!DepositLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:41'!
+transactionValue
+
+	^ value! !
+
+!DepositLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:41'!
+value
+
+	^ value! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'DepositLeg class' category: 'ServiciosFinancieros-Ejercicio'!
+DepositLeg class
+	instanceVariableNames: ''!
+
+!DepositLeg class methodsFor: 'instance creation' stamp: 'fp 11/23/2021 18:56:41'!
+for: aValue
+
+	^ self new initializeFor: aValue ! !
+
+
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Withdraw
 	instanceVariableNames: 'value counterparty'
@@ -233,16 +318,6 @@ initializeFor: aValue
 
 	value := aValue ! !
 
-
-!Withdraw methodsFor: 'value' stamp: 'fp 11/21/2021 17:48:58'!
-counterparty
-
-	^counterparty! !
-
-!Withdraw methodsFor: 'value' stamp: 'fp 11/21/2021 18:13:33'!
-defineCounterparty: aCounterparty
-
-	counterparty := aCounterparty ! !
 
 !Withdraw methodsFor: 'value' stamp: 'fp 11/21/2021 18:11:41'!
 transactionValue
@@ -264,6 +339,82 @@ Withdraw class
 for: aValue
 
 	^ self new initializeFor: aValue ! !
+
+
+!classDefinition: #WithdrawalLeg category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #WithdrawalLeg
+	instanceVariableNames: 'value counterparty'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!WithdrawalLeg methodsFor: 'initialization' stamp: 'fp 11/23/2021 18:56:29'!
+initializeFor: aValue
+
+	value := aValue ! !
+
+
+!WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:29'!
+counterparty
+
+	^counterparty! !
+
+!WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:29'!
+defineCounterparty: aCounterparty
+
+	counterparty := aCounterparty ! !
+
+!WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:29'!
+transactionValue
+
+	^ value negated! !
+
+!WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:29'!
+value
+
+	^ value! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'WithdrawalLeg class' category: 'ServiciosFinancieros-Ejercicio'!
+WithdrawalLeg class
+	instanceVariableNames: ''!
+
+!WithdrawalLeg class methodsFor: 'instance creation' stamp: 'fp 11/23/2021 18:56:29'!
+for: aValue
+
+	^ self new initializeFor: aValue ! !
+
+
+!classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Portfolio
+	instanceVariableNames: 'accounts'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Portfolio methodsFor: 'initialization' stamp: 'fp 11/23/2021 20:14:22'!
+hasRegistered: aTransaction
+	
+	^ true! !
+
+!Portfolio methodsFor: 'initialization' stamp: 'fp 11/23/2021 19:41:38'!
+initialize
+	
+	accounts := OrderedCollection new.! !
+
+
+!Portfolio methodsFor: 'main protocol' stamp: 'fp 11/23/2021 19:45:29'!
+balance
+
+ 	^accounts sum: [ :anAccount | 
+			anAccount balance. 
+	] ifEmpty:[0]! !
+
+
+!Portfolio methodsFor: 'associating' stamp: 'fp 11/23/2021 19:43:23'!
+addAccount: aReceptiveAccount 
+	accounts add: aReceptiveAccount.! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
@@ -307,29 +458,32 @@ transactions
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Transfer
-	instanceVariableNames: 'deposit withdrawal'
+	instanceVariableNames: 'depositLeg withdrawalLeg'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 17:50:09'!
-deposit
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:02:41'!
+depositLeg
 
-	^deposit ! !
+	^depositLeg ! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 18:13:33'!
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:02:46'!
 initializeFrom: anOriginAccount to: aDestinationAccount for: anAmount
 
-	deposit := Deposit register: anAmount on: aDestinationAccount.
-	withdrawal := Withdraw register: anAmount on: anOriginAccount.
+	depositLeg := DepositLeg register: anAmount on: aDestinationAccount.
+	withdrawalLeg := WithdrawalLeg register: anAmount on: anOriginAccount.
 	
-	deposit defineCounterparty: withdrawal.
-	withdrawal defineCounterparty: deposit.! !
+	depositLeg defineCounterparty: withdrawalLeg.
+	withdrawalLeg defineCounterparty: depositLeg.
+	
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 17:50:12'!
-withdrawal
+	! !
 
-	^withdrawal ! !
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:02:46'!
+withdrawalLeg
+
+	^withdrawalLeg ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 

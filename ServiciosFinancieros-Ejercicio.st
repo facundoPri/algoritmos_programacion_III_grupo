@@ -83,6 +83,87 @@ test06PortfolioCanReturnTheTransactionsOfOneOfItsAccounts
 
 	self assert: account transactions equals: (portfolio transactionsOf: account).! !
 
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 17:40:02'!
+test07PortofioCantAddSameAccountTwice
+
+	| portfolio account previousPortfolioBalance |
+	
+	portfolio := Portfolio new.
+	account := ReceptiveAccount new.
+	
+	Deposit register: 100 * peso on: account.
+	portfolio addAccount: account.
+	
+	previousPortfolioBalance := portfolio balance.
+
+	self
+		should: [	portfolio addAccount: account.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:anError | 
+			self assert: anError messageText = Portfolio accountAlreadyRegisteredErrorDescription.
+			self assert: previousPortfolioBalance equals: portfolio balance.
+		].! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:11:43'!
+test08PortfolioCantAddAnAccountRegisteredOnOneOdItsPortfolios
+
+	| account previousPortfolioBalance portfolio1 portfolio2 |
+	
+	portfolio1 := Portfolio new.	
+	portfolio2 := Portfolio new.
+	account := ReceptiveAccount new.
+	
+	Deposit register: 100 * peso on: account.
+	portfolio2 addAccount: account.
+	portfolio1 addAccount: portfolio2.
+	
+	previousPortfolioBalance := portfolio1 balance.
+
+	self
+		should: [	portfolio1 addAccount: account.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:anError | 
+			self assert: anError messageText = Portfolio accountAlreadyRegisteredErrorDescription.
+			self assert: previousPortfolioBalance equals: portfolio1 balance.
+		].! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:17:32'!
+test09PortfolioCanAddMoreThanOnePorfolio
+
+	| portfolio1 portfolio2 account1 account2 portfolio |
+	
+	portfolio := Portfolio new.	
+	portfolio1 := Portfolio new.	
+	portfolio2 := Portfolio new.
+	
+	portfolio addAccount: portfolio1.
+	portfolio addAccount: portfolio2.
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	
+	Deposit register: 50 * peso on: account1.
+	Deposit register: 100 * peso on: account2.
+	
+	portfolio1 addAccount: account1.
+	portfolio2 addAccount: account2.
+	
+	self assert: 150 * peso equals: portfolio balance.! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:24:26'!
+test10PortfolioCantIncludeItSelf
+
+	| portfolio |
+	
+	portfolio := Portfolio new.	
+	
+	self
+		should: [	portfolio addAccount: portfolio.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:anError | 
+			self assert: anError messageText = Portfolio invalidPortfolioErrorDescription.
+		].! !
+
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -449,9 +530,48 @@ transactionsOf: aReceptiveAccount
 	^aReceptiveAccount transactions! !
 
 
-!Portfolio methodsFor: 'associating' stamp: 'fp 11/23/2021 19:43:23'!
+!Portfolio methodsFor: 'associating' stamp: 'fp 11/24/2021 18:29:05'!
 addAccount: aReceptiveAccount 
+
+	(self hasAccount: aReceptiveAccount) ifTrue: [
+		self error: self class accountAlreadyRegisteredErrorDescription
+	].
+
+	accounts do: [:anAccount|
+		(anAccount isKindOf: Portfolio) ifTrue: [
+			(anAccount hasAccount: aReceptiveAccount) ifTrue:[
+				self error: self class accountAlreadyRegisteredErrorDescription
+			]
+		]
+	].
+
+	(self = aReceptiveAccount) ifTrue: [
+		self error: self class invalidPortfolioErrorDescription 
+	].
+
 	accounts add: aReceptiveAccount.! !
+
+
+!Portfolio methodsFor: 'private' stamp: 'fp 11/24/2021 18:18:53'!
+hasAccount: aReceptiveAccount 
+
+	^accounts includes: aReceptiveAccount.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
+Portfolio class
+	instanceVariableNames: ''!
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 17:40:45'!
+accountAlreadyRegisteredErrorDescription
+
+	^'Account already registered'! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:25:30'!
+invalidPortfolioErrorDescription
+
+	^'Invalid portfolio'! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!

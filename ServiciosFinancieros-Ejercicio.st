@@ -1,51 +1,51 @@
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #PortfolioTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'portfolio portfolio1 portfolio2 account account1 account2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:12:06'!
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 19:08:35'!
+setUp
+	
+	portfolio := Portfolio new.
+	portfolio1 := Portfolio new.	
+	portfolio2 := Portfolio new.	
+	
+	account := ReceptiveAccount new.
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:27'!
 test01EmptyPortfolioHasBalanceOfZero
 
-	| portfolio |
-	portfolio := Portfolio new.
 	
 	self assert: 0 equals: portfolio balance.! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:26:21'!
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:56'!
 test02WhenPorfolioHasOneAccountBothBalanceAreTheSame
 
-	| portfolio account |
-	portfolio := Portfolio new.
-	account := ReceptiveAccount new.
+	
 	Deposit register: 100 * peso on: account.
 	portfolio addAccount: account.
 	
 	self assert: 100 * peso equals: portfolio balance.! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:40:16'!
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:58'!
 test03WhenPorfolioHasMoreThanOneAccountTheBalanceIsTheSumOfTheBalances
 
-	| portfolio account1 account2 |
-	portfolio := Portfolio new.
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
-	Deposit register: 100 * peso on: account1.
-	Deposit register: 50 * peso on: account2.
+	
+	Deposit register: 100 * peso on: account.
+	Deposit register: 50 * peso on: account1.
+	portfolio addAccount: account.
 	portfolio addAccount: account1.
-	portfolio addAccount: account2.
 	
 	self assert: 150 * peso equals: portfolio balance.! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 20:17:19'!
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:56'!
 test04ATransactionRegisteredOnAnAccountInPortfolioIsFound
 
-	| portfolio account deposit |
-	
-	portfolio := Portfolio new.
-	account := ReceptiveAccount new.
-	
+	| deposit |
 	deposit := Deposit register: 100 * peso on: account.
 
 	portfolio addAccount: account.
@@ -53,14 +53,10 @@ test04ATransactionRegisteredOnAnAccountInPortfolioIsFound
 	self assert: (portfolio hasRegistered: deposit).
 	! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 20:23:35'!
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:56'!
 test05PortfolioCantFindTransactionNotRegistered
 
-	| portfolio account deposit |
-	
-	portfolio := Portfolio new.
-	account := ReceptiveAccount new.
-	
+	| deposit |
 	deposit := Deposit for: 100 * peso.
 
 	portfolio addAccount: account.
@@ -68,29 +64,35 @@ test05PortfolioCantFindTransactionNotRegistered
 	self deny: (portfolio hasRegistered: deposit).
 	! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 20:37:51'!
-test06PortfolioCanReturnTheTransactionsOfOneOfItsAccounts
-
-	| portfolio account |
-	
-	portfolio := Portfolio new.
-	account := ReceptiveAccount new.
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:56'!
+test06PortfolioCanReturnAllItsTransactionsWhenHasOneAccount
 	
 	Deposit register: 100 * peso on: account.
 	Withdraw register: 50 * peso on: account.
 
 	portfolio addAccount: account.
 
-	self assert: account transactions equals: (portfolio transactionsOf: account).! !
+	self assert: account transactions equals: (portfolio transactions).! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 17:40:02'!
-test07PortofioCantAddSameAccountTwice
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:39:04'!
+test07PortfolioCanReturnAllItsTransactionsWhenHasTwoAccount
+	
+	| allTransactions |
+	Deposit register: 100 * peso on: account1.
+	Withdraw register: 50 * peso on: account2.
 
-	| portfolio account previousPortfolioBalance |
+	portfolio addAccount: account1.
+	portfolio addAccount: account2.
 	
-	portfolio := Portfolio new.
-	account := ReceptiveAccount new.
+	allTransactions := account1 transactions.
+    allTransactions addAllLast: account2 transactions.
+
+	self assert: allTransactions equals: (portfolio transactions).! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:56'!
+test08PortofioCantAddSameAccountTwice
 	
+	| previousPortfolioBalance |
 	Deposit register: 100 * peso on: account.
 	portfolio addAccount: account.
 	
@@ -104,15 +106,11 @@ test07PortofioCantAddSameAccountTwice
 			self assert: previousPortfolioBalance equals: portfolio balance.
 		].! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:11:43'!
-test08PortfolioCantAddAnAccountRegisteredOnOneOdItsPortfolios
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:56'!
+test09PortfolioCantAddAnAccountRegisteredOnOneOdItsPortfolios
 
-	| account previousPortfolioBalance portfolio1 portfolio2 |
 	
-	portfolio1 := Portfolio new.	
-	portfolio2 := Portfolio new.
-	account := ReceptiveAccount new.
-	
+	| previousPortfolioBalance |
 	Deposit register: 100 * peso on: account.
 	portfolio2 addAccount: account.
 	portfolio1 addAccount: portfolio2.
@@ -127,20 +125,12 @@ test08PortfolioCantAddAnAccountRegisteredOnOneOdItsPortfolios
 			self assert: previousPortfolioBalance equals: portfolio1 balance.
 		].! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:17:32'!
-test09PortfolioCanAddMoreThanOnePorfolio
-
-	| portfolio1 portfolio2 account1 account2 portfolio |
-	
-	portfolio := Portfolio new.	
-	portfolio1 := Portfolio new.	
-	portfolio2 := Portfolio new.
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:39:03'!
+test10PortfolioCanAddMoreThanOnePorfolio
 	
 	portfolio addAccount: portfolio1.
 	portfolio addAccount: portfolio2.
 	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
 	
 	Deposit register: 50 * peso on: account1.
 	Deposit register: 100 * peso on: account2.
@@ -150,18 +140,40 @@ test09PortfolioCanAddMoreThanOnePorfolio
 	
 	self assert: 150 * peso equals: portfolio balance.! !
 
-!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:24:26'!
-test10PortfolioCantIncludeItSelf
-
-	| portfolio |
-	
-	portfolio := Portfolio new.	
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:27'!
+test11PortfolioCantIncludeItSelf
 	
 	self
 		should: [	portfolio addAccount: portfolio.]
 		raise: Error - MessageNotUnderstood 
 		withExceptionDo: [:anError | 
 			self assert: anError messageText = Portfolio invalidPortfolioErrorDescription.
+		].! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:38:58'!
+test12PortfolioCantAddPortfolioThatIncludesAnyOfItsAccounts
+	
+	portfolio addAccount: account1.
+	portfolio1 addAccount: account1.
+	
+	self
+		should: [	portfolio addAccount: portfolio1.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:anError | 
+			self assert: anError messageText = Portfolio accountAlreadyRegisteredErrorDescription.
+		].! !
+
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 19:13:56'!
+test13PortfolioCantAddAccountIfItsParentsHaveIt
+	
+	portfolio addAccount: account1.
+	portfolio addAccount: portfolio1.
+	
+	self
+		should: [portfolio1 addAccount: account1.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:anError | 
+			self assert: anError messageText = Portfolio accountAlreadyRegisteredErrorDescription.
 		].! !
 
 
@@ -263,8 +275,8 @@ TestCase subclass: #TransferTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/21/2021 18:26:41'!
-test01DestinationAccountIncreasesBalanceAnOriginAccountDecreasesBalanceOnTransfer
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:07:41'!
+test01OnTransferDestinationAccountBalanceIncreasesAndOriginAccountBalanceDecreases
 
 	| destinationAccount originAccount |
 	originAccount := ReceptiveAccount new.
@@ -275,7 +287,7 @@ test01DestinationAccountIncreasesBalanceAnOriginAccountDecreasesBalanceOnTransfe
 	self assert: originAccount balance equals: -100 * peso.
 	self assert: destinationAccount balance equals: 100 * peso.! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/19/2021 18:16:05'!
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:16:10'!
 test02CannotTransferNegativeAmount
 
 	| destinationAccount originAccount |
@@ -286,7 +298,7 @@ test02CannotTransferNegativeAmount
 		should: [	Transfer from: originAccount to: destinationAccount for: -100*peso.]
 		raise: Error - MessageNotUnderstood 
 		withExceptionDo: [:anError |
-			self assert: anError messageText = Transfer negativeAmountErrorDescription.
+			self assert: anError messageText = Transfer invalidAmountErrorDescription.
 			self assert: destinationAccount balance equals: 0*peso.
 			self assert: originAccount balance equals: 0*peso.
 		].! !
@@ -302,6 +314,36 @@ test03EachLegAnswersItsCounterparty
 	
 	self assert: (aTransference withdrawalLeg) counterparty equals: aTransference depositLeg.
 	self assert: (aTransference depositLeg) counterparty equals: aTransference withdrawalLeg.! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:09:36'!
+test04TransferenceCanAnswerItsValue
+
+	| destinationAccount originAccount aTransference1 aTransference2 |
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	
+	aTransference1 := Transfer from: originAccount to: destinationAccount for: 100*peso.
+	aTransference2 := Transfer from: originAccount to: destinationAccount for: 50*peso.
+	
+	self assert: 100*peso equals: aTransference1 value.
+	self assert: 50*peso equals: aTransference2 value.
+	! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:16:05'!
+test05CannotTransferZero
+
+	| destinationAccount originAccount |
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	
+	self
+		should: [	Transfer from: originAccount to: destinationAccount for: 0*peso.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:anError |
+			self assert: anError messageText = Transfer invalidAmountErrorDescription.
+			self assert: destinationAccount balance equals: 0*peso.
+			self assert: originAccount balance equals: 0*peso.
+		].! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -375,7 +417,7 @@ for: aValue
 
 !classDefinition: #DepositLeg category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #DepositLeg
-	instanceVariableNames: 'value counterparty'
+	instanceVariableNames: 'value transfer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -386,15 +428,15 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!DepositLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:41'!
+!DepositLeg methodsFor: 'value' stamp: 'fp 11/28/2021 18:00:19'!
 counterparty
 
-	^counterparty! !
+	^transfer withdrawalLeg! !
 
-!DepositLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:41'!
-defineCounterparty: aCounterparty
+!DepositLeg methodsFor: 'value' stamp: 'fp 11/28/2021 17:58:15'!
+ofTransfer: anTransfer
 
-	counterparty := aCounterparty ! !
+	transfer := anTransfer ! !
 
 !DepositLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:41'!
 transactionValue
@@ -455,7 +497,7 @@ for: aValue
 
 !classDefinition: #WithdrawalLeg category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #WithdrawalLeg
-	instanceVariableNames: 'value counterparty'
+	instanceVariableNames: 'value counterparty transfer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -466,15 +508,15 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:29'!
+!WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/28/2021 17:58:56'!
 counterparty
 
-	^counterparty! !
+	^transfer depositLeg! !
 
-!WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:29'!
-defineCounterparty: aCounterparty
+!WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/28/2021 17:58:24'!
+ofTransfer: anTransfer
 
-	counterparty := aCounterparty ! !
+	transfer := anTransfer ! !
 
 !WithdrawalLeg methodsFor: 'value' stamp: 'fp 11/23/2021 18:56:29'!
 transactionValue
@@ -500,7 +542,7 @@ for: aValue
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Portfolio
-	instanceVariableNames: 'accounts'
+	instanceVariableNames: 'accounts parentPortfolio'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -512,10 +554,11 @@ hasRegistered: aTransaction
 		anAccount hasRegistered: aTransaction.
 	]! !
 
-!Portfolio methodsFor: 'initialization' stamp: 'fp 11/23/2021 19:41:38'!
+!Portfolio methodsFor: 'initialization' stamp: 'fp 11/28/2021 18:57:32'!
 initialize
 	
-	accounts := OrderedCollection new.! !
+	accounts := OrderedCollection new.
+	parent := nil.! !
 
 
 !Portfolio methodsFor: 'main protocol' stamp: 'fp 11/23/2021 19:45:29'!
@@ -525,37 +568,63 @@ balance
 			anAccount balance. 
 	] ifEmpty:[0]! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'fp 11/23/2021 20:39:02'!
-transactionsOf: aReceptiveAccount 
-	^aReceptiveAccount transactions! !
+!Portfolio methodsFor: 'main protocol' stamp: 'fp 11/28/2021 17:16:13'!
+transactions
+	| allTransactions |
+	allTransactions := OrderedCollection new.
+	accounts do:[:anAccount|
+		allTransactions addAllLast: anAccount transactions.
+	].
+
+    ^allTransactions.! !
 
 
-!Portfolio methodsFor: 'associating' stamp: 'fp 11/24/2021 18:29:05'!
-addAccount: aReceptiveAccount 
+!Portfolio methodsFor: 'associating' stamp: 'fp 11/28/2021 19:04:02'!
+addAccount: anAccount 
 
-	(self hasAccount: aReceptiveAccount) ifTrue: [
+	(parentPortfolio ~= nil and:[parentPortfolio hasAccount: anAccount]) ifTrue:[
 		self error: self class accountAlreadyRegisteredErrorDescription
 	].
 
-	accounts do: [:anAccount|
-		(anAccount isKindOf: Portfolio) ifTrue: [
-			(anAccount hasAccount: aReceptiveAccount) ifTrue:[
-				self error: self class accountAlreadyRegisteredErrorDescription
-			]
-		]
+	(self hasAccount: anAccount) ifTrue: [
+		self error: self class accountAlreadyRegisteredErrorDescription
 	].
 
-	(self = aReceptiveAccount) ifTrue: [
+	(self = anAccount) ifTrue: [
 		self error: self class invalidPortfolioErrorDescription 
 	].
 
-	accounts add: aReceptiveAccount.! !
+	(anAccount isKindOf: Portfolio) ifTrue: [
+		anAccount setParent: self.
+	].
+
+	accounts add: anAccount.! !
 
 
-!Portfolio methodsFor: 'private' stamp: 'fp 11/24/2021 18:18:53'!
+!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 19:24:20'!
 hasAccount: aReceptiveAccount 
 
+	accounts do: [:anAccount|
+		(anAccount isKindOf: Portfolio) ifTrue: [
+			((anAccount hasAccount: aReceptiveAccount) or: [anAccount == aReceptiveAccount])ifTrue:[^true]
+		].
+		(aReceptiveAccount isKindOf: Portfolio) ifTrue: [
+			((aReceptiveAccount hasAccount: anAccount ) or: [anAccount == aReceptiveAccount])ifTrue:[^true]
+		]
+	].
+
 	^accounts includes: aReceptiveAccount.! !
+
+!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 19:01:48'!
+parentPortfolio
+
+	^parentPortfolio! !
+
+!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 19:01:12'!
+setParent: aPortfolio
+
+	parentPortfolio := aPortfolio 
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -601,10 +670,10 @@ hasRegistered: aTransaction
 	^ transactions includes: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/25/2021 20:39:26'!
 register: aTransaction
 
-	transactions add: aTransaction 
+	transactions add: aTransaction.
 ! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/21/2021 17:57:53'!
@@ -615,7 +684,7 @@ transactions
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Transfer
-	instanceVariableNames: 'depositLeg withdrawalLeg'
+	instanceVariableNames: 'depositLeg withdrawalLeg value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -625,17 +694,23 @@ depositLeg
 
 	^depositLeg ! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:02:46'!
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:10:41'!
 initializeFrom: anOriginAccount to: aDestinationAccount for: anAmount
 
 	depositLeg := DepositLeg register: anAmount on: aDestinationAccount.
 	withdrawalLeg := WithdrawalLeg register: anAmount on: anOriginAccount.
 	
-	depositLeg defineCounterparty: withdrawalLeg.
-	withdrawalLeg defineCounterparty: depositLeg.
+	depositLeg ofTransfer: self.
+	withdrawalLeg ofTransfer: self.
+	value := anAmount.
 	
 
 	! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 18:10:48'!
+value
+
+	^value.! !
 
 !Transfer methodsFor: 'as yet unclassified' stamp: 'fp 11/23/2021 19:02:46'!
 withdrawalLeg
@@ -648,15 +723,15 @@ withdrawalLeg
 Transfer class
 	instanceVariableNames: ''!
 
-!Transfer class methodsFor: 'instance creation' stamp: 'fp 11/21/2021 18:04:54'!
+!Transfer class methodsFor: 'instance creation' stamp: 'fp 11/28/2021 18:14:47'!
 from: anOriginAccount to: aDestinationAccount for: anAmount
 
- 	(anAmount < 0) ifTrue:[
-		self error: self negativeAmountErrorDescription.
+ 	(anAmount <= 0) ifTrue:[
+		self error: self invalidAmountErrorDescription.
 	].
 	
 	^self new initializeFrom: anOriginAccount to: aDestinationAccount for: anAmount! !
 
-!Transfer class methodsFor: 'instance creation' stamp: 'fp 11/19/2021 18:08:05'!
-negativeAmountErrorDescription
-	^'Amount is negative'! !
+!Transfer class methodsFor: 'instance creation' stamp: 'fp 11/28/2021 18:15:30'!
+invalidAmountErrorDescription
+	^'Invalid amount'! !

@@ -176,6 +176,20 @@ test13PortfolioCantAddAccountIfItsParentsHaveIt
 			self assert: anError messageText = Portfolio accountAlreadyRegisteredErrorDescription.
 		].! !
 
+!PortfolioTest methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 20:44:06'!
+test14PortfolioCantAddAccountIfItsGrandparentHaveIt
+	
+	portfolio addAccount: account1.
+	portfolio addAccount: portfolio1.
+	portfolio1 addAccount: portfolio2.
+		
+	self
+		should: [portfolio2 addAccount: account1.]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:anError | 
+			self assert: anError messageText = Portfolio accountAlreadyRegisteredErrorDescription.
+		].! !
+
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -344,6 +358,212 @@ test05CannotTransferZero
 			self assert: destinationAccount balance equals: 0*peso.
 			self assert: originAccount balance equals: 0*peso.
 		].! !
+
+
+!classDefinition: #Account category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Account
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Account methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:15:27'!
+balance
+
+	self subclassResponsibility ! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:15:24'!
+hasRegistered: aTransaction
+
+	self subclassResponsibility ! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:20:59'!
+mmmm: anAccount
+
+	self subclassResponsibility ! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:15:51'!
+parentPortfolio
+
+	self subclassResponsibility ! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:16:10'!
+setParent: aParent
+
+	self subclassResponsibility ! !
+
+!Account methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:16:19'!
+transactions
+
+	self subclassResponsibility ! !
+
+
+!classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
+Account subclass: #Portfolio
+	instanceVariableNames: 'accounts parentPortfolio'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Portfolio methodsFor: 'initialization' stamp: 'fp 11/23/2021 20:26:13'!
+hasRegistered: aTransaction
+	
+	^accounts anySatisfy: [:anAccount|
+		anAccount hasRegistered: aTransaction.
+	]! !
+
+!Portfolio methodsFor: 'initialization' stamp: 'fp 11/28/2021 21:04:02'!
+initialize
+	
+	accounts := OrderedCollection new.
+	parentPortfolio := PortfolioNil with: self.! !
+
+
+!Portfolio methodsFor: 'main protocol' stamp: 'fp 11/23/2021 19:45:29'!
+balance
+
+ 	^accounts sum: [ :anAccount | 
+			anAccount balance. 
+	] ifEmpty:[0]! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'fp 11/28/2021 17:16:13'!
+transactions
+	| allTransactions |
+	allTransactions := OrderedCollection new.
+	accounts do:[:anAccount|
+		allTransactions addAllLast: anAccount transactions.
+	].
+
+    ^allTransactions.! !
+
+
+!Portfolio methodsFor: 'associating' stamp: 'fp 11/28/2021 21:11:04'!
+addAccount: anAccount 
+
+	self validateAccount: anAccount.
+	
+	anAccount setParent: self.
+
+	accounts add: anAccount.! !
+
+
+!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 20:50:40'!
+getRoot
+
+	^parentPortfolio getRoot! !
+
+!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 19:24:20'!
+hasAccount: aReceptiveAccount 
+
+	accounts do: [:anAccount|
+		(anAccount isKindOf: Portfolio) ifTrue: [
+			((anAccount hasAccount: aReceptiveAccount) or: [anAccount == aReceptiveAccount])ifTrue:[^true]
+		].
+		(aReceptiveAccount isKindOf: Portfolio) ifTrue: [
+			((aReceptiveAccount hasAccount: anAccount ) or: [anAccount == aReceptiveAccount])ifTrue:[^true]
+		]
+	].
+
+	^accounts includes: aReceptiveAccount.! !
+
+!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 19:01:48'!
+parentPortfolio
+
+	^parentPortfolio! !
+
+!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 20:58:48'!
+setParent: aPortfolio
+
+	parentPortfolio := aPortfolio ! !
+
+!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 21:11:15'!
+validateAccount: anAccount 
+
+	(self getRoot hasAccount: anAccount) ifTrue:[
+		self error: self class accountAlreadyRegisteredErrorDescription
+	].
+
+	(self hasAccount: anAccount) ifTrue: [
+		self error: self class accountAlreadyRegisteredErrorDescription
+	].
+
+	(self = anAccount) ifTrue: [
+		self error: self class invalidPortfolioErrorDescription 
+	].
+! !
+
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:20:45'!
+mmmm: anAccount
+
+	self subclassResponsibility ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
+Portfolio class
+	instanceVariableNames: ''!
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 17:40:45'!
+accountAlreadyRegisteredErrorDescription
+
+	^'Account already registered'! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:25:30'!
+invalidPortfolioErrorDescription
+
+	^'Invalid portfolio'! !
+
+
+!classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
+Account subclass: #ReceptiveAccount
+	instanceVariableNames: 'transactions parentPortfolio'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!ReceptiveAccount methodsFor: 'initialization' stamp: 'fp 11/28/2021 21:07:30'!
+initialize
+
+	parentPortfolio := PortfolioNil with: self.
+	transactions := OrderedCollection new.! !
+
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/21/2021 18:12:16'!
+balance
+	
+	^transactions sum: [ :aTransaction | 
+			aTransaction transactionValue 
+	] ifEmpty:[0]
+	! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
+hasRegistered: aTransaction
+
+	^ transactions includes: aTransaction 
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/25/2021 20:39:26'!
+register: aTransaction
+
+	transactions add: aTransaction.
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/28/2021 21:05:13'!
+setParent: aParent
+
+	parentPortfolio := aParent ! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/21/2021 17:57:53'!
+transactions 
+
+	^ transactions copy! !
+
+
+!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:20:45'!
+mmmm: anAccount
+
+	self subclassResponsibility ! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -540,146 +760,32 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
-!classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #Portfolio
-	instanceVariableNames: 'accounts parentPortfolio'
+!classDefinition: #PortfolioNil category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #PortfolioNil
+	instanceVariableNames: 'son'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Portfolio methodsFor: 'initialization' stamp: 'fp 11/23/2021 20:26:13'!
-hasRegistered: aTransaction
-	
-	^accounts anySatisfy: [:anAccount|
-		anAccount hasRegistered: aTransaction.
-	]! !
+!PortfolioNil methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:09:16'!
+getRoot
 
-!Portfolio methodsFor: 'initialization' stamp: 'fp 11/28/2021 18:57:32'!
-initialize
-	
-	accounts := OrderedCollection new.
-	parent := nil.! !
+	^son.! !
 
+!PortfolioNil methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:09:05'!
+initializeWith: anAccount
 
-!Portfolio methodsFor: 'main protocol' stamp: 'fp 11/23/2021 19:45:29'!
-balance
-
- 	^accounts sum: [ :anAccount | 
-			anAccount balance. 
-	] ifEmpty:[0]! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'fp 11/28/2021 17:16:13'!
-transactions
-	| allTransactions |
-	allTransactions := OrderedCollection new.
-	accounts do:[:anAccount|
-		allTransactions addAllLast: anAccount transactions.
-	].
-
-    ^allTransactions.! !
-
-
-!Portfolio methodsFor: 'associating' stamp: 'fp 11/28/2021 19:04:02'!
-addAccount: anAccount 
-
-	(parentPortfolio ~= nil and:[parentPortfolio hasAccount: anAccount]) ifTrue:[
-		self error: self class accountAlreadyRegisteredErrorDescription
-	].
-
-	(self hasAccount: anAccount) ifTrue: [
-		self error: self class accountAlreadyRegisteredErrorDescription
-	].
-
-	(self = anAccount) ifTrue: [
-		self error: self class invalidPortfolioErrorDescription 
-	].
-
-	(anAccount isKindOf: Portfolio) ifTrue: [
-		anAccount setParent: self.
-	].
-
-	accounts add: anAccount.! !
-
-
-!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 19:24:20'!
-hasAccount: aReceptiveAccount 
-
-	accounts do: [:anAccount|
-		(anAccount isKindOf: Portfolio) ifTrue: [
-			((anAccount hasAccount: aReceptiveAccount) or: [anAccount == aReceptiveAccount])ifTrue:[^true]
-		].
-		(aReceptiveAccount isKindOf: Portfolio) ifTrue: [
-			((aReceptiveAccount hasAccount: anAccount ) or: [anAccount == aReceptiveAccount])ifTrue:[^true]
-		]
-	].
-
-	^accounts includes: aReceptiveAccount.! !
-
-!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 19:01:48'!
-parentPortfolio
-
-	^parentPortfolio! !
-
-!Portfolio methodsFor: 'private' stamp: 'fp 11/28/2021 19:01:12'!
-setParent: aPortfolio
-
-	parentPortfolio := aPortfolio 
-	! !
+	son := anAccount.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
-Portfolio class
+!classDefinition: 'PortfolioNil class' category: 'ServiciosFinancieros-Ejercicio'!
+PortfolioNil class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 17:40:45'!
-accountAlreadyRegisteredErrorDescription
-
-	^'Account already registered'! !
-
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'fp 11/24/2021 18:25:30'!
-invalidPortfolioErrorDescription
-
-	^'Invalid portfolio'! !
-
-
-!classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
-Object subclass: #ReceptiveAccount
-	instanceVariableNames: 'transactions'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!ReceptiveAccount methodsFor: 'initialization' stamp: 'NR 10/17/2019 15:06:56'!
-initialize
-
-	transactions := OrderedCollection new.! !
-
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/21/2021 18:12:16'!
-balance
-	
-	^transactions sum: [ :aTransaction | 
-			aTransaction transactionValue 
-	] ifEmpty:[0]
-	! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
-hasRegistered: aTransaction
-
-	^ transactions includes: aTransaction 
-! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/25/2021 20:39:26'!
-register: aTransaction
-
-	transactions add: aTransaction.
-! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'fp 11/21/2021 17:57:53'!
-transactions 
-
-	^ transactions copy! !
+!PortfolioNil class methodsFor: 'as yet unclassified' stamp: 'fp 11/28/2021 21:08:31'!
+with: anAccount
+	^self new initializeWith: anAccount.! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!

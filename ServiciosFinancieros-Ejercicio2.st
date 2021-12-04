@@ -323,7 +323,7 @@ test08AccountCanBeCreatedWithAName
 
 !classDefinition: #ReportTest category: 'ServiciosFinancieros-Ejercicio2'!
 TestCase subclass: #ReportTest
-	instanceVariableNames: 'anAccount1 anAccount2 emptyPortfolio1 portfolio emptyNamedPortfolio'
+	instanceVariableNames: 'anAccount1 anAccount2 emptyPortfolio1 portfolio emptyNamedPortfolio portfolioWithPortfolio portfolioWithPortfolioWithPortfolio anAccount3'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio2'!
@@ -435,39 +435,67 @@ test10AccountWithMultipleTransfersHasATransferNet
 	aTransferNet := TransferNet of: anAccount1.
 	self assert: 39*peso equals: aTransferNet create.! !
 
-!ReportTest methodsFor: 'test' stamp: 'RS 12/3/2021 16:59:24'!
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 18:17:49'!
 test11WhenPortfolioHasNoChildAccountsAndNoNamePortfolioTreePrinterReturnsDefaultName
 	
 	| aReport |
 	aReport := (PortfolioTreePrinter of: emptyPortfolio1) create.
 	self assert: emptyPortfolio1 name equals:  (aReport at: 1).! !
 
-!ReportTest methodsFor: 'test' stamp: 'RS 12/3/2021 17:09:26'!
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 18:17:57'!
 test12WhenPortfolioHasNoChildAccountsPortfolioTreePrinterReturnsOnlyItsName
 	
 	| aReport |
 	aReport := (PortfolioTreePrinter of: emptyNamedPortfolio ) create.
-	self assert: emptyNamedPortfolio accountName equals:  (aReport at: 1).! !
+	self assert: 'Portfolio de la familia' equals:  (aReport at: 1).! !
 
-!ReportTest methodsFor: 'test' stamp: 'RS 12/3/2021 17:19:36'!
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 17:59:32'!
 test13WhenPortfolioHasOneAccountNamedAndOneUnnamedPortfolioTreePrinterReturnsTheirNames
 	
 	| aReport |
-	aReport := (PortfolioTreePrinter of: portfolio ) create
-	.
+	aReport := (PortfolioTreePrinter of: portfolio ) create.
+	
 	self assert: portfolio accountName equals:  (aReport at: 1).
 	self assert: '     ',anAccount1 accountName equals:  (aReport at: 2).
 	self assert: '     ',anAccount2 accountName equals:  (aReport at: 3).! !
 
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 18:03:47'!
+test14WhenPortfolioHasOnePortfoliPortfolioTreePrinterReturnsItsNamesWithATreeStructure
+	
+	| aReport |
+	aReport := (PortfolioTreePrinter of: portfolioWithPortfolio) create.
+	
+	self assert: portfolioWithPortfolio accountName equals:  (aReport at: 1).
+	self assert: '     ',portfolio accountName equals:  (aReport at: 2).
+	self assert: '     ','     ',anAccount1 accountName equals:  (aReport at: 3).
+	self assert: '     ','     ',anAccount2 accountName equals:  (aReport at: 4).! !
 
-!ReportTest methodsFor: 'setup' stamp: 'RS 12/3/2021 17:12:07'!
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 18:18:36'!
+test15PortfolioTreeIsRenderedProperlyByPortfolioTreePrinter
+	
+	| aReport |
+	aReport := (PortfolioTreePrinter of: portfolioWithPortfolioWithPortfolio) create.
+	
+	self assert: portfolioWithPortfolioWithPortfolio accountName equals:  (aReport at: 1).
+	self assert: '     ',portfolioWithPortfolio accountName equals:  (aReport at: 2).
+	self assert: '     ','     ',portfolio accountName equals:  (aReport at: 3).
+	self assert: '     ','     ','     ',anAccount1 accountName equals:  (aReport at: 4).
+	self assert: '     ','     ','     ',anAccount2 accountName equals:  (aReport at: 5).
+	self assert: '     ',anAccount3 accountName equals:  (aReport at: 6).! !
+
+
+!ReportTest methodsFor: 'setup' stamp: 'RS 12/4/2021 18:16:18'!
 setUp
+
 	anAccount1 := ReceptiveAccount named: 'Cuenta mia'.
 	anAccount2 := ReceptiveAccount new.
+	anAccount3 := ReceptiveAccount new.
 	
 	emptyPortfolio1 := Portfolio new.
 	emptyNamedPortfolio := Portfolio named: 'Portfolio de la familia'.
-	portfolio := Portfolio with: anAccount1 with: anAccount2.! !
+	portfolio := Portfolio named: 'Portfolio1' with: anAccount1 with: anAccount2.
+	portfolioWithPortfolio := Portfolio named: 'Portfolio de la familia' with: portfolio.
+	portfolioWithPortfolioWithPortfolio := Portfolio with: portfolioWithPortfolio with: anAccount3.! !
 
 
 !ReportTest methodsFor: 'soporte' stamp: 'RS 12/2/2021 21:18:33'!
@@ -646,6 +674,13 @@ balance
 	
 	^accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ 0 ]! !
 
+!Portfolio methodsFor: 'main protocol' stamp: 'RS 12/4/2021 18:40:33'!
+beAddedToReport: aReport
+
+	^accounts do: [:each |
+		each beAddedToReport: aReport
+		]! !
+
 !Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:28:29'!
 hasRegistered: aTransaction
 
@@ -732,6 +767,11 @@ assertCanAdd: accountToAdd
 
 	(self anyRootParentIsComposedBy: accountToAdd) ifTrue: [ self signalCanNotAddAccount ].
 ! !
+
+!Portfolio methodsFor: 'composition' stamp: 'RS 12/4/2021 20:37:41'!
+bePrintedOn: aReport with: anIdentation
+
+	^aReport printPortfolioOn: self with: anIdentation.! !
 
 !Portfolio methodsFor: 'composition' stamp: 'HAW 5/29/2019 16:24:54'!
 isComposedBy: anAccount
@@ -835,6 +875,11 @@ balance
 	^transactions 
 		inject: 0 * peso
 		into: [ :currentBalance :transaction | transaction affectBalance: currentBalance ]! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'RS 12/4/2021 20:37:28'!
+bePrintedOn: aReport with: anIdentation
+
+	^aReport printReceptiveAccountOn: self with: anIdentation.! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/21/2019 18:55:56'!
 hasRegistered: aTransaction
@@ -1184,14 +1229,14 @@ Report subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio2'!
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'RS 12/3/2021 16:20:32'!
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'RS 12/4/2021 18:30:25'!
 create
 
 	| summary |
 	summary := OrderedCollection new.
 	
-	account iterateTransactionsWith: [:each|
-		summary add: (each bePrintedOn: self)
+	account iterateTransactionsWith: [:transaction|
+		summary add: (transaction bePrintedOn: self)
 	].
 
 	summary add: ('Balance = ' , account balance asString).
@@ -1236,7 +1281,7 @@ of: anAccount
 
 !classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Ejercicio2'!
 Report subclass: #PortfolioTreePrinter
-	instanceVariableNames: 'account'
+	instanceVariableNames: 'account report'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio2'!
@@ -1247,19 +1292,32 @@ initializeWith: anAccount
 	account := anAccount.! !
 
 
-!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'RS 12/4/2021 17:55:24'!
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'RS 12/4/2021 20:34:40'!
 create
 
-	| report |
 	report := OrderedCollection new.
 	
 	report add: account accountName.
-	account iterateAccountsWith: [:each|
-		report add: '     ',each accountName.
+	
+	account iterateAccountsWith: [:anAccount|
+		(anAccount bePrintedOn: self with: '     ').
 	].
 
 	^report.
 	! !
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'RS 12/4/2021 20:37:41'!
+printPortfolioOn: aPortfolio with: anIdentation
+
+	report add: anIdentation,aPortfolio accountName .
+	aPortfolio iterateAccountsWith: [:anAccount|
+		anAccount bePrintedOn: self with: anIdentation,'     '.
+		].! !
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'RS 12/4/2021 20:37:28'!
+printReceptiveAccountOn: aReceptiveAccount with: anIdentation
+
+	report add: (anIdentation,aReceptiveAccount accountName).! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 

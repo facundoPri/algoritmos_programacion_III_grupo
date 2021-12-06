@@ -323,7 +323,7 @@ test08AccountCanBeCreatedWithAName
 
 !classDefinition: #ReportTest category: 'ServiciosFinancieros-Ejercicio2'!
 TestCase subclass: #ReportTest
-	instanceVariableNames: 'anAccount1 anAccount2 emptyPortfolio1 portfolio emptyNamedPortfolio portfolioWithPortfolio portfolioWithPortfolioWithPortfolio anAccount3'
+	instanceVariableNames: 'anAccount1 anAccount2 emptyPortfolio1 portfolioWithTwoAccounts emptyNamedPortfolio portfolioWithPortfolio portfolioWithPortfolioWithPortfolio anAccount3 portfolioWithAccount portfolioWithEmptyPortfolio'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio2'!
@@ -381,7 +381,7 @@ test05AccountWithOneTransferWithdrawLegTransactionSummaryReturnsTransactionAndBa
 	self assert: 'Balance = -50 pesos' equals: (aSummary at: 2).  
 ! !
 
-!ReportTest methodsFor: 'test' stamp: 'RS 12/3/2021 15:41:11'!
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 21:16:55'!
 test06AccountWithMultipleTransactionSummaryReturnsTransactionsAndBalance
 
 	| messages aSummary |
@@ -393,7 +393,7 @@ test06AccountWithMultipleTransactionSummaryReturnsTransactionsAndBalance
 	aSummary := (AccountSummary of: anAccount1) create.
 	messages := #( 'Depósito por 100 pesos' 'Extracción por 50 pesos' 'Salida por transferencia de 20 pesos' 'Entrada por transferencia de 30 pesos' 'Balance = 60 pesos').
 	
-	self assertOnMessages: messages withASummary: aSummary.! !
+	self assertOnMessages: messages withAReport: aSummary.! !
 
 !ReportTest methodsFor: 'test' stamp: 'RS 12/3/2021 15:41:11'!
 test07AccountWithoutTransfersHasZeroAsTransferNet
@@ -449,28 +449,28 @@ test12WhenPortfolioHasNoChildAccountsPortfolioTreePrinterReturnsOnlyItsName
 	aReport := (PortfolioTreePrinter of: emptyNamedPortfolio ) create.
 	self assert: 'Portfolio de la familia' equals:  (aReport at: 1).! !
 
-!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 17:59:32'!
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 21:05:33'!
 test13WhenPortfolioHasOneAccountNamedAndOneUnnamedPortfolioTreePrinterReturnsTheirNames
 	
 	| aReport |
-	aReport := (PortfolioTreePrinter of: portfolio ) create.
+	aReport := (PortfolioTreePrinter of: portfolioWithTwoAccounts ) create.
 	
-	self assert: portfolio accountName equals:  (aReport at: 1).
+	self assert: portfolioWithTwoAccounts accountName equals:  (aReport at: 1).
 	self assert: '     ',anAccount1 accountName equals:  (aReport at: 2).
 	self assert: '     ',anAccount2 accountName equals:  (aReport at: 3).! !
 
-!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 18:03:47'!
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 21:05:33'!
 test14WhenPortfolioHasOnePortfoliPortfolioTreePrinterReturnsItsNamesWithATreeStructure
 	
 	| aReport |
 	aReport := (PortfolioTreePrinter of: portfolioWithPortfolio) create.
 	
 	self assert: portfolioWithPortfolio accountName equals:  (aReport at: 1).
-	self assert: '     ',portfolio accountName equals:  (aReport at: 2).
+	self assert: '     ',portfolioWithTwoAccounts accountName equals:  (aReport at: 2).
 	self assert: '     ','     ',anAccount1 accountName equals:  (aReport at: 3).
 	self assert: '     ','     ',anAccount2 accountName equals:  (aReport at: 4).! !
 
-!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 18:18:36'!
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 21:05:33'!
 test15PortfolioTreeIsRenderedProperlyByPortfolioTreePrinter
 	
 	| aReport |
@@ -478,13 +478,117 @@ test15PortfolioTreeIsRenderedProperlyByPortfolioTreePrinter
 	
 	self assert: portfolioWithPortfolioWithPortfolio accountName equals:  (aReport at: 1).
 	self assert: '     ',portfolioWithPortfolio accountName equals:  (aReport at: 2).
-	self assert: '     ','     ',portfolio accountName equals:  (aReport at: 3).
+	self assert: '     ','     ',portfolioWithTwoAccounts accountName equals:  (aReport at: 3).
 	self assert: '     ','     ','     ',anAccount1 accountName equals:  (aReport at: 4).
 	self assert: '     ','     ','     ',anAccount2 accountName equals:  (aReport at: 5).
 	self assert: '     ',anAccount3 accountName equals:  (aReport at: 6).! !
 
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 21:00:18'!
+test16WhenPortfolioIsEmptyPortfolioDetailedTreeReturnNameAndBalance
 
-!ReportTest methodsFor: 'setup' stamp: 'RS 12/4/2021 18:16:18'!
+	| aReport |
+	aReport := (PortfolioDetailedTreePrinter of: emptyNamedPortfolio) create.
+	
+	self assert: emptyNamedPortfolio accountName equals:  (aReport at: 1).
+	self assert: '     ','Balance = 0 pesos' equals:  (aReport at: 2).! !
+
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 20:58:18'!
+test17WhenPortfolioHasOneAccountPortfolioDetailedTreePrinterReturnsNameAccountSummaryAndBalance
+
+	| aReport |
+	aReport := (PortfolioDetailedTreePrinter of: portfolioWithAccount) create.
+	
+	self assert: portfolioWithAccount accountName equals:  (aReport at: 1).
+	self assert: '     ',anAccount1 accountName equals:  (aReport at: 2).
+	self assert: '     ','     ','Balance = 0 pesos' equals:  (aReport at: 3).
+	self assert: '     ','Balance = 0 pesos' equals:  (aReport at: 4).! !
+
+!ReportTest methodsFor: 'test' stamp: 'RS 12/4/2021 21:27:48'!
+test18WhenPortfolioHasMultipleReceptiveAccountSPortfolioDetailedTreePrinterReturnsNameAccountSummaryAndBalance
+
+	| aReport messages |
+
+	Transfer amount: 20 * peso from: anAccount1 to: anAccount2.
+	Transfer amount: 30 * peso from: anAccount2 to: anAccount1.
+	
+	aReport := (PortfolioDetailedTreePrinter of: portfolioWithTwoAccounts) create.
+	messages := OrderedCollection new.
+	messages 
+		add: portfolioWithTwoAccounts accountName;
+		add: '     ',anAccount1 accountName;
+		add: '     ','     ','Salida por transferencia de 20 pesos';
+		add: '     ','     ','Entrada por transferencia de 30 pesos';	
+		add: '     ','     ','Balance = 10 pesos';
+		add: '     ',anAccount2 accountName;
+		add: '     ','     ','Entrada por transferencia de 20 pesos';
+		add: '     ','     ','Salida por transferencia de 30 pesos';	
+		add: '     ','     ','Balance = -10 pesos';
+		add: '     ','Balance = 0 pesos'.
+		
+	self assertOnMessages: messages withAReport: aReport.! !
+
+!ReportTest methodsFor: 'test' stamp: 'RS 12/5/2021 12:15:01'!
+test19WhenPortfolioHasOnePortfolioPortfolioDetailedTreePrinterReturnsTheirNamesAndBalance
+
+	| aReport messages |
+	
+	aReport := (PortfolioDetailedTreePrinter of: portfolioWithEmptyPortfolio) create.
+	messages := OrderedCollection new.
+	messages 
+		add: portfolioWithEmptyPortfolio accountName;
+		add: '     ',emptyPortfolio1 accountName;
+		add: '     ','     ','Balance = 0 pesos';
+		add: '     ','Balance = 0 pesos'.
+		
+	self assertOnMessages: messages withAReport: aReport.! !
+
+!ReportTest methodsFor: 'test' stamp: 'RS 12/5/2021 12:36:13'!
+test20AccountSummaryCantRecieveAPortfolio
+
+	self 
+		should: [ AccountSummary of: emptyPortfolio1 ]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError | 
+			self assert: AccountSummary canNotRecievePortfolioErrorMessage equals: anError messageText.
+			]! !
+
+!ReportTest methodsFor: 'test' stamp: 'RS 12/5/2021 12:35:25'!
+test21PortfolioTreePrinterCantRecieveAReceptiveAccount
+
+	self 
+		should: [ PortfolioTreePrinter of: anAccount1]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError | 
+			self assert: PortfolioTreePrinter canNotRecieveReceptiveAccountErrorMessage equals: anError messageText.
+			]! !
+
+!ReportTest methodsFor: 'test' stamp: 'RS 12/5/2021 12:36:49'!
+test22PortfolioDetailedTreePrinterCantRecieveAReceptiveAccount
+
+	self 
+		should: [ PortfolioDetailedTreePrinter of: anAccount1]
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [ :anError | 
+			self assert: PortfolioDetailedTreePrinter canNotRecieveReceptiveAccountErrorMessage equals: anError messageText.
+			]! !
+
+!ReportTest methodsFor: 'test' stamp: 'RS 12/5/2021 12:39:45'!
+test23WhenPortfolioHasOnePortfolioWithAccountPortfolioDetailedTreePrinterReturnsTheirNamesTheAccountSummaryAndBalance
+
+	| aReport messages |
+	
+	aReport := (PortfolioDetailedTreePrinter of: portfolioWithPortfolio ) create.
+	messages := OrderedCollection new.
+	messages 
+		add: portfolioWithPortfolioWithPortfolio accountName;
+		add: '     ',emptyPortfolio1 accountName;
+		add: '     ','     ','Balance = 0 pesos';
+		add: '     ','Balance = 0 pesos'.
+		
+	self assertOnMessages: messages withAReport: aReport.! !
+
+
+!ReportTest methodsFor: 'setup' stamp: 'RS 12/4/2021 21:35:23'!
 setUp
 
 	anAccount1 := ReceptiveAccount named: 'Cuenta mia'.
@@ -493,15 +597,19 @@ setUp
 	
 	emptyPortfolio1 := Portfolio new.
 	emptyNamedPortfolio := Portfolio named: 'Portfolio de la familia'.
-	portfolio := Portfolio named: 'Portfolio1' with: anAccount1 with: anAccount2.
-	portfolioWithPortfolio := Portfolio named: 'Portfolio de la familia' with: portfolio.
+	
+	portfolioWithEmptyPortfolio := Portfolio named: 'Portfolio with one account' with: emptyPortfolio1.
+	portfolioWithAccount := Portfolio named: 'Portfolio with one account' with: anAccount1.
+	portfolioWithTwoAccounts := Portfolio named: 'Portfolio with two accounts' with: anAccount1 with: anAccount2.
+	portfolioWithPortfolio := Portfolio named: 'Portfolio de la familia' with: portfolioWithTwoAccounts.
 	portfolioWithPortfolioWithPortfolio := Portfolio with: portfolioWithPortfolio with: anAccount3.! !
 
 
-!ReportTest methodsFor: 'soporte' stamp: 'RS 12/2/2021 21:18:33'!
-assertOnMessages: anArray withASummary: aSummary 
+!ReportTest methodsFor: 'soporte' stamp: 'RS 12/4/2021 21:43:39'!
+assertOnMessages: anArray withAReport: aSummary
+
 	anArray inject: 1 into: [:index :each |
-		self assert: (aSummary at: index) equals: each.
+		self assert: each equals: (aSummary at: index).
 		index + 1.
 	].! !
 
@@ -669,10 +777,10 @@ initialize
 	parents := OrderedCollection new.! !
 
 
-!Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:19:36'!
+!Portfolio methodsFor: 'main protocol' stamp: 'RS 12/5/2021 12:13:31'!
 balance
 	
-	^accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ 0 ]! !
+	^accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ 0 * peso ]! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'RS 12/4/2021 18:40:33'!
 beAddedToReport: aReport
@@ -969,9 +1077,9 @@ AccountTransaction subclass: #Deposit
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio2'!
 
-!Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
+!Deposit methodsFor: 'initialization' stamp: 'RS 12/5/2021 12:26:55'!
 initializeFor: aValue
-
+ 
 	value := aValue ! !
 
 
@@ -984,7 +1092,7 @@ asString
 bePrintedOn: aReport
 	^aReport printDepositWith: self.! !
 
-!Deposit methodsFor: 'value' stamp: 'RS 12/2/2021 16:58:07'!
+!Deposit methodsFor: 'value' stamp: 'RS 12/5/2021 12:28:03'!
 value
 
 	^ value! !
@@ -1198,8 +1306,7 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-
-!Withdraw class methodsFor: 'as yet unclassified' stamp: 'LL 7/8/2021 21:45:05'!
+!Withdraw class methodsFor: 'instance creation' stamp: 'LL 7/8/2021 21:45:05'!
 register: aValue on: account
 
 	| transaction |
@@ -1274,9 +1381,72 @@ printWithdrawalWith: aWithdraw
 AccountSummary class
 	instanceVariableNames: ''!
 
-!AccountSummary class methodsFor: 'as yet unclassified' stamp: 'RS 12/2/2021 21:03:03'!
+!AccountSummary class methodsFor: 'error descriptions' stamp: 'RS 12/5/2021 12:20:11'!
+canNotRecievePortfolioErrorMessage
+	^'An Account Summary cant recieve a Portfolio'.! !
+
+
+!AccountSummary class methodsFor: 'instance creation' stamp: 'RS 12/5/2021 12:35:55'!
 of: anAccount
+	(anAccount isKindOf: ReceptiveAccount) ifFalse: [
+		self error: self canNotRecievePortfolioErrorMessage.
+		].
 	^self new initializeWith: anAccount! !
+
+
+!classDefinition: #PortfolioDetailedTreePrinter category: 'ServiciosFinancieros-Ejercicio2'!
+Report subclass: #PortfolioDetailedTreePrinter
+	instanceVariableNames: 'account report'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio2'!
+
+!PortfolioDetailedTreePrinter methodsFor: 'initialization' stamp: 'RS 12/5/2021 12:13:00'!
+create
+
+	report := OrderedCollection new.
+	
+	report add: account accountName.
+	
+	account iterateAccountsWith: [:anAccount | | summary |
+		report add:('     ',anAccount accountName).
+		(anAccount isKindOf: ReceptiveAccount ) ifTrue: [
+			summary := (AccountSummary of: anAccount)create.
+			summary do: [:each|
+				report add:('     ','     ',each).
+				].
+			].
+		(anAccount isKindOf: Portfolio ) ifTrue: [
+			report add: ('     ','     ','Balance = ',anAccount balance asString).
+		].
+	].
+	
+	report add: ('     ','Balance = ',account balance asString).
+	^report.
+! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'initialization' stamp: 'RS 12/4/2021 20:45:33'!
+initializeOf: anAccount 
+
+	account := anAccount.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PortfolioDetailedTreePrinter class' category: 'ServiciosFinancieros-Ejercicio2'!
+PortfolioDetailedTreePrinter class
+	instanceVariableNames: ''!
+
+!PortfolioDetailedTreePrinter class methodsFor: 'error descriptions' stamp: 'RS 12/5/2021 12:35:25'!
+canNotRecieveReceptiveAccountErrorMessage
+	^'An PortfolioDetailedTreePrinter cant recieve a Receptive Account'.! !
+
+
+!PortfolioDetailedTreePrinter class methodsFor: 'instance creation' stamp: 'RS 12/5/2021 12:35:25'!
+of: anAccount 
+	(anAccount isKindOf: Portfolio ) ifFalse: [
+		self error: self canNotRecieveReceptiveAccountErrorMessage.
+		].
+	^self new initializeOf: anAccount ! !
 
 
 !classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros-Ejercicio2'!
@@ -1325,9 +1495,17 @@ printReceptiveAccountOn: aReceptiveAccount with: anIdentation
 PortfolioTreePrinter class
 	instanceVariableNames: ''!
 
-!PortfolioTreePrinter class methodsFor: 'instance creation' stamp: 'RS 12/3/2021 16:55:33'!
+!PortfolioTreePrinter class methodsFor: 'instance creation' stamp: 'RS 12/5/2021 12:35:25'!
 of: anAccount
+	(anAccount isKindOf: Portfolio ) ifFalse: [
+		self error: self canNotRecieveReceptiveAccountErrorMessage.
+		].
 	^self new initializeWith: anAccount! !
+
+
+!PortfolioTreePrinter class methodsFor: 'error descriptions' stamp: 'RS 12/5/2021 12:35:25'!
+canNotRecieveReceptiveAccountErrorMessage
+	^'An PortfolioTreePrinter cant recieve a Receptive Account'.! !
 
 
 !classDefinition: #TransferNet category: 'ServiciosFinancieros-Ejercicio2'!
@@ -1356,7 +1534,7 @@ initializeWith: anAccount
 TransferNet class
 	instanceVariableNames: ''!
 
-!TransferNet class methodsFor: 'as yet unclassified' stamp: 'RS 12/2/2021 21:20:04'!
+!TransferNet class methodsFor: 'instance creation' stamp: 'RS 12/2/2021 21:20:04'!
 of: anAccount
 
 	^self new initializeWith: anAccount.! !

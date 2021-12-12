@@ -311,26 +311,43 @@ TestCase subclass: #SeparadorTest
 	poolDictionaries: ''
 	category: 'AlgoIII-Factorio-2021-1C'!
 
-!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/11/2021 20:05:40'!
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:31:41'!
+assertModoDelSeparadorEsBalanceado: unSeparador
+
+	self assert: 'a Balanceado' equals: unSeparador modo asString.! !
+
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 18:19:49'!
+assertModoDelSeparadorEsFiltrado: unSeparador deMaterial: unMaterial
+
+	self assert: 'a Filtrado' equals: unSeparador modo asString.
+	self assert: ((unSeparador modo material) = unMaterial).! !
+
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:29:29'!
+assertModoDelSeparadorEsNeutro: unSeparador
+
+	self assert: 'a Neutro' equals: unSeparador modo asString.! !
+
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 16:52:16'!
 test01UnSeparadorSeInicializaComoNeutroPorDefecto
 
 	| separador |
 	separador := Separador conDestinoPrincipal: Caja new conDestinoSecundario: Caja new.
-	self assert: #Neutro equals: separador modo.! !
+	self assert: 'a Neutro' equals: separador modo asString.! !
 
-!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/11/2021 20:12:56'!
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 18:43:48'!
 test02UnSeparadorDeModoFiltradoSeInicializaCorrectamente
 
 	| separador |
-	separador := Separador deModo: #Filtrado conDestinoPrincipal: Caja new conDestinoSecundario: Caja new.
-	self assert: #Filtrado equals: separador modo.! !
+	"TODO: Estaria bueno abstraer creacion de separador por modo"
+	separador := Separador deModo: (Filtrado de: MenaDeCarbon) conDestinoPrincipal: Caja new conDestinoSecundario: Caja new.
+	self assert: 'a Filtrado' equals: separador modo asString.! !
 
-!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/11/2021 20:19:08'!
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 16:56:21'!
 test03UnSeparadorDeModoBalanceadoSeInicializaCorrectamente
 
 	| separador |
-	separador := Separador deModo: #Balanceado conDestinoPrincipal: Caja new conDestinoSecundario: Caja new.
-	self assert: #Balanceado equals: separador modo.! !
+	separador := Separador deModo: Balanceado new conDestinoPrincipal: Caja new conDestinoSecundario: Caja new.
+	self assert: 'a Balanceado' equals: separador modo asString.! !
 
 !SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/11/2021 20:35:59'!
 test04UnSeparadorNuevoNoContieneNada
@@ -360,13 +377,13 @@ test06UnSeparadorNeutroPasaLasMenasAlDestinoPrincipal
 	self assert: 1 equals: (destinoPrincipal cantidadDe: MenaDeHierro).
 	self assert: separador estaVacio.! !
 
-!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/11/2021 21:19:16'!
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:03:40'!
 test07UnSeparadorFiltradoDeCarbonSeparaLasMenasPorTipo
 
 	| separador destinoPrincipal destinoSecundaria |
 	destinoPrincipal := Caja new.
 	destinoSecundaria := Caja new.
-	separador := Separador deModo: #Filtrado porMaterial: MenaDeCarbon conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
+	separador := Separador deModo: (Filtrado de: MenaDeCarbon) conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
 	
 	separador agregarMenas: (OrderedCollection with: MenaDeHierro new with: MenaDeCarbon new with: MenaDeHierro new).
 	separador separar.
@@ -377,13 +394,13 @@ test07UnSeparadorFiltradoDeCarbonSeparaLasMenasPorTipo
 	
 	self assert: separador estaVacio.! !
 
-!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/11/2021 21:23:35'!
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:09:38'!
 test08UnSeparadorFiltradoDeHierroSeparaLasMenasPorTipo
 
 	| separador destinoPrincipal destinoSecundaria |
 	destinoPrincipal := Caja new.
 	destinoSecundaria := Caja new.
-	separador := Separador deModo: #Filtrado porMaterial: MenaDeHierro conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
+	separador := Separador deModo: (Filtrado de: MenaDeHierro) conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
 	
 	separador agregarMenas: (OrderedCollection with: MenaDeCarbon new with: MenaDeHierro new with: MenaDeCarbon new).
 	separador separar.
@@ -394,13 +411,14 @@ test08UnSeparadorFiltradoDeHierroSeparaLasMenasPorTipo
 	
 	self assert: separador estaVacio.! !
 
-!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/11/2021 21:37:25'!
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:10:40'!
 test09UnSeparadorBalanceadoSeparaLasMenasEquitativamente
 
 	| separador destinoPrincipal destinoSecundaria |
 	destinoPrincipal := Caja new.
 	destinoSecundaria := Caja new.
-	separador := Separador deModo: #Balanceado conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
+
+	separador := Separador deModo: Balanceado new conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
 
 	separador agregarMenas: (OrderedCollection with: MenaDeCarbon new with: MenaDeHierro new with: MenaDeCarbon new with: MenaDeHierro new with: MenaDeCarbon new with: MenaDeCarbon new).
 	separador separar.
@@ -411,6 +429,94 @@ test09UnSeparadorBalanceadoSeparaLasMenasEquitativamente
 	self assert: 1 equals: (destinoSecundaria cantidadDe: MenaDeCarbon).
 
 	self assert: separador estaVacio.! !
+
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 18:46:03'!
+test10UnSeparadorNeutroPuedeCambiarACualquierModo
+
+	| separador destinoPrincipal destinoSecundaria |
+	destinoPrincipal := Caja new.
+	destinoSecundaria := Caja new.
+
+	separador := Separador conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
+
+	"TODO: Envez de devolver el modo tener un mensaje que directamente lo cambia"
+	separador cambiarModoANeutro.
+	self assertModoDelSeparadorEsNeutro: separador.
+	
+	separador cambiarModoABalanceado.
+	self assertModoDelSeparadorEsBalanceado: separador.
+	separador cambiarModoANeutro.
+	
+	separador cambiarModoAFiltradoDe: MenaDeCarbon.
+	self assertModoDelSeparadorEsFiltrado: separador deMaterial: MenaDeCarbon.! !
+
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 18:13:11'!
+test11UnSeparadorBalanceadoPuedeCambiarModoANeutroOBalanceado
+
+	| separador destinoPrincipal destinoSecundaria |
+	destinoPrincipal := Caja new.
+	destinoSecundaria := Caja new.
+
+	separador := Separador deModo: Balanceado new conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
+	
+	separador cambiarModoABalanceado.
+	self assertModoDelSeparadorEsBalanceado: separador.
+
+	separador cambiarModoANeutro.
+	self assertModoDelSeparadorEsNeutro: separador.
+	separador cambiarModoABalanceado.
+	
+	self
+	should:[separador cambiarModoAFiltradoDe: MenaDeCarbon.]
+	raise: Error - MessageNotUnderstood 
+    withExceptionDo: [ :anError | 
+		self assert: ModoDeSeparacion noPuedeCambiarAEsteModo equals: anError messageText.
+		self assertModoDelSeparadorEsBalanceado: separador.
+	]
+! !
+
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 18:15:09'!
+test12UnSeparadorFiltradoPuedeCambiarModoANeutroOFiltrado
+
+	| separador destinoPrincipal destinoSecundaria |
+	destinoPrincipal := Caja new.
+	destinoSecundaria := Caja new.
+
+	separador := Separador deModo: (Filtrado de: MenaDeCarbon) conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
+
+	separador cambiarModoAFiltradoDe: MenaDeCarbon .
+	self assertModoDelSeparadorEsFiltrado: separador deMaterial: MenaDeCarbon.
+
+	separador cambiarModoANeutro.
+	self assertModoDelSeparadorEsNeutro: separador.
+	separador cambiarModoAFiltradoDe: MenaDeCarbon .
+
+	separador cambiarModoAFiltradoDe: MenaDeHierro .
+	self assertModoDelSeparadorEsFiltrado: separador deMaterial: MenaDeHierro.
+
+	self
+	should:[separador cambiarModoABalanceado.]
+	raise: Error - MessageNotUnderstood 
+    withExceptionDo: [ :anError | 
+		self assert: ModoDeSeparacion noPuedeCambiarAEsteModo equals: anError messageText.
+		self assertModoDelSeparadorEsFiltrado: separador deMaterial: MenaDeHierro.
+	]
+! !
+
+!SeparadorTest methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 19:18:28'!
+test13UnSeparadorBalanceadoSabeSuProximoDestino
+
+	| separador destinoPrincipal destinoSecundaria |
+	destinoPrincipal := Caja new.
+	destinoSecundaria := Caja new.
+
+	separador := Separador deModo: (Balanceado new) conDestinoPrincipal: destinoPrincipal conDestinoSecundario: destinoSecundaria.
+
+	separador agregarMenas: (OrderedCollection with: MenaDeHierro new with: MenaDeCarbon new with: MenaDeHierro new).
+	
+	separador separar.
+	
+	self assert: 'secundario' equals: separador modo proximoDestino.! !
 
 
 !classDefinition: #Caja category: 'AlgoIII-Factorio-2021-1C'!
@@ -600,6 +706,161 @@ esDeMaterial: unTipoDeMaterial
 	^ self isMemberOf: unTipoDeMaterial! !
 
 
+!classDefinition: #ModoDeSeparacion category: 'AlgoIII-Factorio-2021-1C'!
+Object subclass: #ModoDeSeparacion
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'AlgoIII-Factorio-2021-1C'!
+
+!ModoDeSeparacion methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:55:54'!
+cambiarsePorBalanceado
+
+	^Balanceado new.
+
+! !
+
+!ModoDeSeparacion methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:56:00'!
+cambiarsePorNeutro
+
+	^Neutro new.
+
+! !
+
+!ModoDeSeparacion methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:52:48'!
+separarEn: unSeparador
+
+	self subclassResponsibility .! !
+
+
+!ModoDeSeparacion methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 18:24:42'!
+cambiarsePorFiltradoDe: unMaterial 
+	
+	^Filtrado de: unMaterial! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ModoDeSeparacion class' category: 'AlgoIII-Factorio-2021-1C'!
+ModoDeSeparacion class
+	instanceVariableNames: ''!
+
+!ModoDeSeparacion class methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 18:02:08'!
+noPuedeCambiarAEsteModo
+
+	^'No se puede cambiar a este modo'! !
+
+
+!classDefinition: #Balanceado category: 'AlgoIII-Factorio-2021-1C'!
+ModoDeSeparacion subclass: #Balanceado
+	instanceVariableNames: 'proximoDestino'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'AlgoIII-Factorio-2021-1C'!
+
+!Balanceado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 19:15:31'!
+actualizarDestino: unProximoDestino
+
+	proximoDestino := unProximoDestino.! !
+
+!Balanceado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 17:56:24'!
+cambiarsePorBalanceado
+
+	^self.
+
+! !
+
+!Balanceado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 18:03:03'!
+cambiarsePorFiltradoDe: unMaterial
+
+	self error: self class noPuedeCambiarAEsteModo .
+
+! !
+
+!Balanceado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 19:05:14'!
+initialize
+
+	proximoDestino:= 'principal'! !
+
+!Balanceado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 18:54:44'!
+proximoDestino
+	^proximoDestino.! !
+
+!Balanceado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 17:11:22'!
+separarEn: aSeparador 
+	
+	aSeparador separarPorBalanceado: self! !
+
+
+!classDefinition: #Filtrado category: 'AlgoIII-Factorio-2021-1C'!
+ModoDeSeparacion subclass: #Filtrado
+	instanceVariableNames: 'unMaterial_CHANGE_ME material'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'AlgoIII-Factorio-2021-1C'!
+
+!Filtrado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 18:37:18'!
+cambiarsePorBalanceado
+
+	self error: self class noPuedeCambiarAEsteModo .
+
+! !
+
+!Filtrado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 18:35:15'!
+cambiarsePorFiltradoDe: unMaterial 
+	
+	material ~= unMaterial ifTrue:[
+		^Filtrado de: unMaterial
+	].
+	
+	^self.! !
+
+!Filtrado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 16:55:34'!
+initializeDe: unMaterial 
+	
+	material := unMaterial.! !
+
+!Filtrado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 18:15:50'!
+material
+	
+	^material! !
+
+!Filtrado methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 17:07:15'!
+separarEn: aSeparador 
+	
+	aSeparador separarPorFiltrador: self deMaterial: material! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Filtrado class' category: 'AlgoIII-Factorio-2021-1C'!
+Filtrado class
+	instanceVariableNames: ''!
+
+!Filtrado class methodsFor: 'instance creation' stamp: 'fp 12/12/2021 16:55:12'!
+de: unMaterial
+
+	^self new initializeDe: unMaterial.! !
+
+
+!classDefinition: #Neutro category: 'AlgoIII-Factorio-2021-1C'!
+ModoDeSeparacion subclass: #Neutro
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'AlgoIII-Factorio-2021-1C'!
+
+!Neutro methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:57:15'!
+cambiarsePorNeutro
+
+	^self
+
+! !
+
+!Neutro methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:02:22'!
+separarEn: unSeparador
+
+	unSeparador separarPorNeutro: self! !
+
+
 !classDefinition: #Motor category: 'AlgoIII-Factorio-2021-1C'!
 Object subclass: #Motor
 	instanceVariableNames: 'nivelDeDesgaste'
@@ -688,10 +949,20 @@ energiaQueSeObtieneDesdeUnaUnidadDeMadera
 
 !classDefinition: #Separador category: 'AlgoIII-Factorio-2021-1C'!
 Object subclass: #Separador
-	instanceVariableNames: 'destinoSecundario destinoPrincipal modo menasASeparar symbol class caja caja4 material'
+	instanceVariableNames: 'destinoSecundario destinoPrincipal modo menasASeparar'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'AlgoIII-Factorio-2021-1C'!
+
+!Separador methodsFor: 'initialize' stamp: 'fp 12/12/2021 17:56:15'!
+cambiarModoABalanceado
+	
+	modo:= modo cambiarsePorBalanceado.! !
+
+!Separador methodsFor: 'initialize' stamp: 'fp 12/12/2021 17:57:28'!
+cambiarModoANeutro
+	
+	modo := modo cambiarsePorNeutro. ! !
 
 !Separador methodsFor: 'initialize' stamp: 'fp 12/11/2021 20:43:17'!
 initializeDeModo: unModo conDestinoPrincipal: aCaja conDestinoSecundario: aCaja3 
@@ -707,43 +978,47 @@ initializeDeModo: unModo conDestinoPrincipal: aCaja conDestinoSecundario: aCaja3
 modo
 	^modo! !
 
-!Separador methodsFor: 'associating' stamp: 'fp 12/11/2021 21:56:34'!
+!Separador methodsFor: 'associating' stamp: 'fp 12/12/2021 17:12:13'!
 separar
 
-	(modo = #Filtrado) ifTrue:[	
-		destinoSecundario agregarMenas: (menasASeparar select: [:each| each esDeMaterial: material ]).
-		destinoPrincipal agregarMenas: (menasASeparar select: [:each| (each esDeMaterial: material) not]).
-	].
-
-	(modo = #Neutro) ifTrue:[
-		destinoPrincipal agregarMenas: menasASeparar. 
-	].
-
-	(modo = #Balanceado) ifTrue:[
-		 menasASeparar inject: 1 into: [:index :each|
-			(index odd) 
-				ifTrue:[ destinoPrincipal agregarMenas: (OrderedCollection with: each) ]	
-				ifFalse:[ destinoSecundario agregarMenas: (OrderedCollection with: each) ]	.
-			index + 1
-		].
-	].
+	modo separarEn: self.
 
 	menasASeparar := OrderedCollection new.! !
 
+
+!Separador methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 18:08:53'!
+cambiarModoAFiltradoDe: unMaterial 
+	
+	modo:= modo cambiarsePorFiltradoDe: unMaterial.! !
 
 !Separador methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/11/2021 20:43:17'!
 estaVacio
 
 	^menasASeparar isEmpty.! !
 
-!Separador methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/11/2021 21:09:29'!
-initializeDeModo: aSymbol porMaterial: aClass conDestinoPrincipal: aCaja conDestinoSecundario: aCaja4 
+!Separador methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 19:12:51'!
+separarPorBalanceado: aBalanceado 
 
-	modo := aSymbol.
-	material := aClass.
-	destinoPrincipal := aCaja.
-	destinoSecundario := aCaja4.
-	menasASeparar :=  OrderedCollection new! !
+	 | proximoDestino |
+	proximoDestino := menasASeparar inject: aBalanceado proximoDestino into: [:destino :each|
+			(destino = 'principal') 
+				ifTrue:[ 
+					destinoPrincipal agregarMenas: (OrderedCollection with: each).
+					'secundario'.
+				]
+				ifFalse:[ 
+					destinoSecundario agregarMenas: (OrderedCollection with: each). 
+					'principal'.
+				].
+		].
+	
+	aBalanceado actualizarDestino: proximoDestino.! !
+
+!Separador methodsFor: '*Aconcagua-Extensions' stamp: 'fp 12/12/2021 17:07:58'!
+separarPorFiltrador: aFiltrado deMaterial: unMaterial
+
+	destinoSecundario agregarMenas: (menasASeparar select: [:each| each esDeMaterial: unMaterial ]).
+	destinoPrincipal agregarMenas: (menasASeparar select: [:each| (each esDeMaterial: unMaterial) not]).! !
 
 
 !Separador methodsFor: 'as yet unclassified' stamp: 'fp 12/11/2021 20:43:17'!
@@ -751,26 +1026,26 @@ agregarMenas: unasMenas
 
 	menasASeparar addAll: unasMenas ! !
 
+!Separador methodsFor: 'as yet unclassified' stamp: 'fp 12/12/2021 17:01:33'!
+separarPorNeutro: unModoNeutro
+
+	destinoPrincipal agregarMenas: menasASeparar. ! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Separador class' category: 'AlgoIII-Factorio-2021-1C'!
 Separador class
 	instanceVariableNames: ''!
 
-!Separador class methodsFor: 'instance creation' stamp: 'fp 12/11/2021 20:16:59'!
+!Separador class methodsFor: 'instance creation' stamp: 'fp 12/12/2021 16:52:43'!
 conDestinoPrincipal: unDestinoA conDestinoSecundario: unDestinoB 
 
-	^self deModo: #Neutro conDestinoPrincipal: unDestinoA conDestinoSecundario: unDestinoB ! !
+	^self deModo: Neutro new conDestinoPrincipal: unDestinoA conDestinoSecundario: unDestinoB ! !
 
 !Separador class methodsFor: 'instance creation' stamp: 'fp 12/11/2021 20:13:37'!
 deModo: unModo conDestinoPrincipal: aCaja conDestinoSecundario: aCaja3 
 
 	^self new initializeDeModo: unModo conDestinoPrincipal: aCaja conDestinoSecundario: aCaja3 ! !
-
-!Separador class methodsFor: 'instance creation' stamp: 'fp 12/11/2021 21:07:11'!
-deModo: aSymbol porMaterial: aClass conDestinoPrincipal: aCaja conDestinoSecundario: aCaja4 
-
-	^self new initializeDeModo: aSymbol porMaterial: aClass conDestinoPrincipal: aCaja conDestinoSecundario: aCaja4 ! !
 
 
 !classDefinition: #UnidadDeCombustible category: 'AlgoIII-Factorio-2021-1C'!
